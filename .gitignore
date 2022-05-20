@@ -1,0 +1,14 @@
+venv/
+
+*.pyc
+dictionary_app/__pycache__/
+
+dictionary_app/instance/
+
+dictionary_app/.pytest_cache/
+dictionary_app/.coverage
+dictionary_app/htmlcov/
+
+dictionary_app/dist/
+dictionary_app/build/
+dictionary_app/*.egg-info/
