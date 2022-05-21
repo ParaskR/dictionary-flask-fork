@@ -1,22 +1,20 @@
 # Dictionary
 
-# Dimitris
-- Django/Flask framework
-- Login/Registration Screen
-
 # Paraschos
-- Django/Flask framework
-- Design (Wireframe)
+- <strike>Django/Flask framework</strike>
+- <strike>Login Screen</strike>
+- <strike>Registration Screen</strike>
+- <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
 
 # Prokopis
 - Django/Flask framework
 - User backend
 
 # Frontend
-- Login Screen
-- Registration Screen
+- <strike>Login Screen</strike>
+- <strike>Registration Screen</strike>
 - Dashboard Screen (Word of the day, search bar, most searched words, games)
-- Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)
+- <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
 - Menu (User Settings, Favorites, Word history, logout)
 
 # Backend
