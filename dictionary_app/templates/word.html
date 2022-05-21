@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ word }}{% endblock %}
+{% block content %}
+    <!-- Display the searched word and its pronunciation -->
+    <div class="row">
+        <h2 class="display-6 ini">{{ word }}</h2>
+        <h4>{{ pronunciation }}</h4>
+    </div>
+
+    <!-- Display the play audio button only when a word is present -->
+    {% if audio_button == True %}
+        <audio id="player" src={{ audio }}></audio>
+        <br>
+        <div>
+            <button class="btn btn-light" onclick="document.getElementById('player').play()"><i
+                    class="fas fa-volume-up"></i></button>
+        </div>
+
+        <br>
+    {% endif %}
+
+    <!-- Display synonyms, if there are any -->
+    {% if synonyms %}
+        <div class="accordion" id="synonyms">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingOne">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseOne" aria-expanded="false"
+                            aria-controls="collapseOne">
+                        Synonyms
+                    </button>
+                </h2>
+                <div id="collapseOne" class="accordion-collapse collapse"
+                     aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        {% for synonym in synonyms %}
+                            <span class="badge bg-light text-dark">{{ synonym }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endif %}
+
+    <!-- Display antonyms, if there are any -->
+    {% if antonyms %}
+        <div class="accordion" id="antonyms">
+            <div class="accordion-item">
+                <h2 class="accordion-header" id="headingTwo">
+                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#collapseTwo" aria-expanded="false"
+                            aria-controls="collapseTwo">
+                        Antonyms
+                    </button>
+                </h2>
+                <div id="collapseTwo" class="accordion-collapse collapse"
+                     aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                    <div class="accordion-body">
+                        {% for antonym in antonyms %}
+                            <span class="badge bg-light text-dark">{{ antonym }}</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <br>
+    {% endif %}
+
+    <!-- Display the different definitions of the word and any example sentences that were found -->
+    {% for part_of_speech, definition, example in word_results %}
+        {% if part_of_speech != None %}
+            <div class="card text-dark bg-light mb-3">
+            <div class="card-header"><strong><em>{{ part_of_speech }}</em></strong></div>
+        {% endif %}
+    <div class="card-body">
+        <h5 class="card-title">{{ definition }}</h5>
+        {% if example != "!" %}
+            <p class="card-text"><em><span class="text-decoration-underline">Example:</span> {{ example }}</em></p>
+        {% endif %}
+    </div>
+    </div>
+    {% endfor %}
+{% endblock %}
