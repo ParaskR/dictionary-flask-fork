@@ -5,6 +5,10 @@
 - <strike>Login Screen</strike>
 - <strike>Registration Screen</strike>
 - <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
+- <strike>Generate dictionary data (APIs)</strike>
+- Menu (User Settings, Favorites, Word history, logout)
+- Dashboard Screen (Word of the day, search bar, most searched words, games)
+
 
 # Prokopis
 - Django/Flask framework
@@ -13,12 +17,12 @@
 # Frontend
 - <strike>Login Screen</strike>
 - <strike>Registration Screen</strike>
-- Dashboard Screen (Word of the day, search bar, most searched words, games)
 - <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
+- Dashboard Screen (Word of the day, search bar, most searched words, games)
 - Menu (User Settings, Favorites, Word history, logout)
 
 # Backend
-- Generate dictionary data (APIs)
+- <strike>Generate dictionary data (APIs)</strike>
 - PostgreSQL -> User Table (id, firstName, lastName, email, username, password, List[SearchResult] favorites, List[SearchResult] searchResults )
 - SQLite ->  User Table (id, firstName, lastName, email, username, password, List[SearchResult] favorites, List[SearchResult] searchResults )
 
