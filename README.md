@@ -20,6 +20,7 @@
 - <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
 - Dashboard Screen (Word of the day, search bar, most searched words, games)
 - Menu (User Settings, Favorites, Word history, logout)
+- User/Account Screen
 
 # Backend
 - <strike>Generate dictionary data (APIs)</strike>
