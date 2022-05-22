@@ -12,3 +12,6 @@ dictionary_app/htmlcov/
 dictionary_app/dist/
 dictionary_app/build/
 dictionary_app/*.egg-info/
+dictionary_app/.idea/sqldialects.xml
+dictionary_app/.idea/dataSources.xml
+dictionary_app/.idea/jsLibraryMappings.xml
