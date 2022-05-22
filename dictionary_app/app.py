@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, escape, session
+from flask import Flask, render_template, request, session
 from random_word import RandomWords
 import requests
 import jsonpath_ng
@@ -10,7 +10,7 @@ from backend.util.sqlite import Database
 from backend.util.db import engine, Base
 
 flask_app = Flask(__name__)
-flask_app.secret_key = b'harrykapotas'
+flask_app.secret_key = b'ACSC_430'
 
 app = FastAPI()
 
@@ -119,6 +119,9 @@ def word_definition(word):
 
     response = requests.get(clean_url)
     entries = response.json()
+
+    pronunciation = None
+    audio_link = None
 
     try:
         # Parse the JSON response to find the word, pronunciation and audio

@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="ISO-8859-1">
     <title>Login | Dictionary</title>
@@ -20,12 +20,16 @@
                 <form action="{{ url_for('login') }}" method="POST">
                     <div class="p-4">
                         <div class="input-group mb-3">
-                            <input type="text" name="username" class="form-control"
-                                   placeholder="Username" required>
+                            <label>
+                                <input type="text" name="username" class="form-control"
+                                       placeholder="Username" required>
+                            </label>
                         </div>
                         <div class="input-group mb-3">
-                            <input type="password" name="password" class="form-control"
-                                   placeholder="Password" required>
+                            <label>
+                                <input type="password" name="password" class="form-control"
+                                       placeholder="Password" required>
+                            </label>
                         </div>
                         <button type="submit" class="btn btn-primary text-center mt-2">
                             Login
