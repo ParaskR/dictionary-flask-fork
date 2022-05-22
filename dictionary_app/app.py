@@ -45,29 +45,31 @@ def login_post():  # put flask_application's code here
   
     db = Database('backend/util/dictionary.db')
     users = db.selection_query(query)
-    if users.count > 0:
+
+    if len(users) > 0:
         return render_template("base.html")
     else:
-        pass
+        return "USER NOT FOUND"
 
-
-@flask_app.route('/register')
+@flask_app.route('/register',methods=['GET'])
 def register():
+    return render_template("register.html")
+
+
+@flask_app.route('/register',methods=['POST'])
+def register_post():
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
     name = request.form['name']
     surname = request.form['surname']
 
-    query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ({0},{1},{2},{3},{4})"
+    query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
+    query =query.format(username, email, password, name, surname)
     db = Database('backend/util/dictionary.db')
-    user = db.post_query(query.format(username, email, password, name, surname), ())
-    print(user)
-    if user is not None:
-        print(user)
+    user = db.post_query(query, ())
+    if user:
         return render_template("base.html")
-    else:
-        pass
 
 
 @flask_app.route('/', methods=['POST'])
@@ -167,4 +169,4 @@ def word_definition(word):
 
 
 if __name__ == '__main__':
-    flask_app.run()
+    flask_app.run(debug=True)

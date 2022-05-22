@@ -19,7 +19,10 @@ class Database:
             else:
                 cur.execute(query)
             self.conn.commit()
+
+            return True
         except Exception as e:
+            return False
             print("ERROR: ", str(e))
 
     def selection_query(self, query):
