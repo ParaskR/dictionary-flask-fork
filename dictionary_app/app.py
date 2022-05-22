@@ -9,6 +9,7 @@ app = Flask(__name__)
 
 @app.route('/login')
 def login():  # put application's code here
+    
     return render_template("login.html")
 
 
