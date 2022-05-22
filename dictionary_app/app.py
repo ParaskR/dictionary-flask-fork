@@ -41,7 +41,7 @@ def login_post():  # put flask_application's code here
     username = request.form['username']
     password = request.form['password']
 
-    query = "SELECT * FROM User WHERE Username={0} AND Password={1} OR Email={0} AND Password={1}".format(username, password)
+    query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(username, password)
   
     db = Database('backend/util/dictionary.db')
     users = db.selection_query(query)
