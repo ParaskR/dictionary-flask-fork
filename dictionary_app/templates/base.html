@@ -19,17 +19,17 @@
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
-    <!-- Custom Script to get word suggestions as the user types in the search bar -->
+    <!-- Custom Script to get word suggestions as the user types in the search bar, using the Datamuse API -->
     <script>
         function suggestion() {
-            document.getElementById('suggestions').innerHTML = '';
+            document.getElementById("suggestions").innerHTML = "";
 
-            const term = document.getElementById("searchValue").value;
-            const url = "https://api.datamuse.com/sug?s=" + term.trim();
+            let term = document.getElementById("searchValue").value;
+            let url = "https://api.datamuse.com/sug?s=" + term.trim();
 
             $.getJSON(url, function (data) {
                 for (let i = 0; i < data.length; i = i + 1) {
-                    document.getElementById("suggestions").innerHTML += '<option value="' + data[i].word + '"/>'
+                    document.getElementById("suggestions").innerHTML += '<option value="' + data[i]["word"] + '"/>'
                 }
             });
         }
@@ -67,7 +67,7 @@
         </div>
     </div>
 </nav>
-<!-- H1 and Searchbar -->
+<!-- h1 and main searchbar -->
 <div class="container-fluid vh-100" style="margin-top: 100px">
     <div class="" style="margin-top: 200px">
         <div class="rounded d-flex justify-content-center">
@@ -91,6 +91,10 @@
                     </form>
                     <br>
                     {% block content %}
+                        <div class="row">
+                            <h2 class="display-6 ini">Word of the Day: {{ word }}</h2>
+                            <h4>{{ pronunciation }}</h4>
+                        </div>
                     {% endblock %}
                 </div>
             </div>

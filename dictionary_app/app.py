@@ -1,18 +1,18 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, escape
+from random_word import RandomWords
 import requests
 import jsonpath_ng
 import json
 import urllib.parse
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-from flask import Flask, escape, request
-from fastapi.middleware.wsgi import WSGIMiddleware
 
-from backend.util.db import engine,Base
+from backend.util.db import engine, Base
 
 flask_app = Flask(__name__)
 app = FastAPI()
 Base.metadata.create_all(bind=engine)
+
 
 # flask routes
 @flask_app.route('/login')
@@ -20,12 +20,14 @@ def login():  # put flask_application's code here
     read_login()
     return render_template("login.html")
 
+
 @app.get('/login')
 def read_login():
     return "HELLO WORLD"
 
+
 @flask_app.route('/register')
-def register():  # put flask_application's code here
+def register():
     return render_template("register.html")
 
 
@@ -42,7 +44,9 @@ def word_search_post():
     else:
         return render_template("base.html")
 
+
 app.mount("/v1", WSGIMiddleware(flask_app))
+
 
 def word_definition(word):
     url = "https://api.dictionaryapi.dev/api/v2/entries/en/"
@@ -110,6 +114,11 @@ def word_definition(word):
     return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
                            word_results=word_results,
                            audio_button=audio_button, synonyms=synonyms, antonyms=antonyms)
+
+
+def word_of_the_day():
+    r = RandomWords()
+    r.word_of_the_day()
 
 
 if __name__ == '__main__':
