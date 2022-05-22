@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, escape
+from flask import Flask, render_template, request, escape, session
 from random_word import RandomWords
 import requests
 import jsonpath_ng
@@ -10,6 +10,8 @@ from backend.util.sqlite import Database
 from backend.util.db import engine, Base
 
 flask_app = Flask(__name__)
+flask_app.secret_key = b'harrykapotas'
+
 app = FastAPI()
 
 Base.metadata.create_all(bind=engine)
@@ -24,6 +26,7 @@ def index():
 
 @flask_app.route('/logout')
 def logout():
+    session.pop('user_id', None)
     return index()
 
 
@@ -44,6 +47,7 @@ def login_post():  # put flask_application's code here
     users = db.selection_query(query)
 
     if len(users) > 0:
+        session['user_id'] = users[0][0]
         return render_template("base.html")
     else:
         return "USER NOT FOUND"
