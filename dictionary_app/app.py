@@ -41,8 +41,9 @@ def login_post():  # put flask_application's code here
     username = request.form['username']
     password = request.form['password']
 
-    query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(username, password)
-  
+    query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
+        username, password)
+
     db = Database('backend/util/dictionary.db')
     users = db.selection_query(query)
 
@@ -51,12 +52,13 @@ def login_post():  # put flask_application's code here
     else:
         return "USER NOT FOUND"
 
-@flask_app.route('/register',methods=['GET'])
+
+@flask_app.route('/register', methods=['GET'])
 def register():
     return render_template("register.html")
 
 
-@flask_app.route('/register',methods=['POST'])
+@flask_app.route('/register', methods=['POST'])
 def register_post():
     username = request.form['username']
     email = request.form['email']
@@ -65,11 +67,16 @@ def register_post():
     surname = request.form['surname']
 
     query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
-    query =query.format(username, email, password, name, surname)
+    query = query.format(username, email, password, name, surname)
     db = Database('backend/util/dictionary.db')
     user = db.post_query(query, ())
     if user:
         return render_template("base.html")
+
+
+@flask_app.route('/account')
+def account():
+    return render_template("account.html")
 
 
 @flask_app.route('/', methods=['POST'])
