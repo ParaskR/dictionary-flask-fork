@@ -1,6 +1,8 @@
 import sqlite3
+
+
 class Database:
-    
+
     def __init__(self, db):
         try:
             self.conn = sqlite3.connect(db)
@@ -9,18 +11,17 @@ class Database:
         except Exception as e:
             print(e)
 
-    def post_query(self, query,values):
+    def post_query(self, query, values):
         cur = self.conn.cursor()
         try:
             if len(values) > 0:
                 cur.execute(query, values)
             else:
                 cur.execute(query)
-            self.conn.commit()        
+            self.conn.commit()
         except Exception as e:
             print("ERROR: ", str(e))
 
-    
     def selection_query(self, query):
         cur = self.conn.cursor()
         data = []
