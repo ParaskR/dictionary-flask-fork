@@ -22,16 +22,12 @@ def index():
     return word_of_the_day()
 
 
-@flask_app.route('/', methods=['POST'])
-def word_search():
-    user_text = request.form['user_text']
-    if user_text != "":
-        return word_definition(user_text)
-    else:
-        return render_template("base.html")
+@flask_app.route('/logout')
+def logout():
+    return index()
 
 
-@flask_app.route('/login', methods=['GET'])
+@flask_app.route('/login')
 def login():
     return render_template("login.html")
 
@@ -53,7 +49,7 @@ def login_post():  # put flask_application's code here
         return "USER NOT FOUND"
 
 
-@flask_app.route('/register', methods=['GET'])
+@flask_app.route('/register')
 def register():
     return render_template("register.html")
 
@@ -71,7 +67,7 @@ def register_post():
     db = Database('backend/util/dictionary.db')
     user = db.post_query(query, ())
     if user:
-        return render_template("base.html")
+        return index()
 
 
 @flask_app.route('/account')
@@ -80,12 +76,12 @@ def account():
 
 
 @flask_app.route('/', methods=['POST'])
-def word_search_post():
+def word_search():
     user_text = request.form['user_text']
     if user_text != "":
         return word_definition(user_text)
     else:
-        return render_template("base.html")
+        return index()
 
 
 app.mount("/v1", WSGIMiddleware(flask_app))

@@ -17,7 +17,7 @@
                 <div class="text-center">
                     <h3 class="text-primary">Register</h3>
                 </div>
-                <form action="/register" method="POST">
+                <form action="{{ url_for('register_post') }}" method="POST">
                     <div class="p-4">
                         <div class="input-group mb-3">
                             <input type="text" name="name" class="form-control"
@@ -28,7 +28,7 @@
                                    placeholder="Surname" required>
                         </div>
                         <div class="input-group mb-3">
-                            <input type="text" name="email" class="form-control"
+                            <input type="email" name="email" class="form-control"
                                    placeholder="Email" required>
                         </div>
                         <div class="input-group mb-3">
@@ -43,7 +43,7 @@
                             Register
                         </button>
                         <p class="text-center mt-5">
-                            Already have an account? <a href="#!">Login</a>
+                            Already have an account? <a href="{{ url_for('login') }}">Login</a>
                         </p>
                     </div>
                 </form>
