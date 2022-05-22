@@ -3,27 +3,38 @@ import requests
 import jsonpath_ng
 import json
 import urllib.parse
+from fastapi import FastAPI
+from fastapi.middleware.wsgi import WSGIMiddleware
+from flask import Flask, escape, request
+from fastapi.middleware.wsgi import WSGIMiddleware
 
-app = Flask(__name__)
+from backend.util.db import engine,Base
 
+flask_app = Flask(__name__)
+app = FastAPI()
+Base.metadata.create_all(bind=engine)
 
-@app.route('/login')
-def login():  # put application's code here
-    
+# flask routes
+@flask_app.route('/login')
+def login():  # put flask_application's code here
+    read_login()
     return render_template("login.html")
 
+@app.get('/login')
+def read_login():
+    return "HELLO WORLD"
 
-@app.route('/register')
-def register():  # put application's code here
+@flask_app.route('/register')
+def register():  # put flask_application's code here
     return render_template("register.html")
 
 
-@app.route('/')
+@flask_app.route('/')
 def index():
     return render_template("base.html")
 
 
-@app.route('/', methods=['POST'])
+@flask_app.route('/', methods=['POST'])
 def word_search_post():
     user_text = request.form['user_text']
     if user_text != "":
@@ -31,6 +42,7 @@ def word_search_post():
     else:
         return render_template("base.html")
 
+app.mount("/v1", WSGIMiddleware(flask_app))
 
 def word_definition(word):
     url = "https://api.dictionaryapi.dev/api/v2/entries/en/"
@@ -101,4 +113,4 @@ def word_definition(word):
 
 
 if __name__ == '__main__':
-    app.run()
+    flask_app.run()
