@@ -26,7 +26,7 @@ def index():
 def word_search():
     user_text = request.form['user_text']
     if user_text != "":
-        return word_definition(user_text, "word.html")
+        return word_definition(user_text)
     else:
         return render_template("base.html")
 
