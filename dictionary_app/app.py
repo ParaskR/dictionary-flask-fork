@@ -6,34 +6,67 @@ import json
 import urllib.parse
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-
+from backend.util.sqlite import Database
 from backend.util.db import engine, Base
 
 flask_app = Flask(__name__)
 app = FastAPI()
+
 Base.metadata.create_all(bind=engine)
 
-
 # flask routes
-@flask_app.route('/login')
-def login():  # put flask_application's code here
-    read_login()
-    return render_template("login.html")
-
-
-@app.get('/login')
-def read_login():
-    return "HELLO WORLD"
-
-
-@flask_app.route('/register')
-def register():
-    return render_template("register.html")
-
 
 @flask_app.route('/')
 def index():
-    return word_of_the_day()
+    # Code for word of the day
+    random_word = RandomWords()
+    random_word = random_word.get_random_word()
+    return word_definition(random_word)
+
+
+@flask_app.route('/', methods=['POST'])
+def word_search():
+    user_text = request.form['user_text']
+    if user_text != "":
+        return word_definition(user_text, "word.html")
+    else:
+        return render_template("base.html")
+
+@flask_app.route('/login', methods=['GET'])
+def login():
+     return render_template("login.html")
+
+@flask_app.route('/login', methods=['POST'])
+def login_post():  # put flask_application's code here
+    username = request.form['username']
+    password = request.form['password']
+   
+    query = "SELECT * FROM User WHERE Username={0} AND Password={1}".format(username, password)
+    print(query)
+    db= Database('dictionary.db')
+    user = db.selection_query(query)
+    if user is not None:
+        return render_template("base.html")
+    else:
+       pass
+
+@flask_app.route('/register')
+def register():
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    name = request.form['name']
+    surname = request.form['surname']
+ 
+    query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ({0},{1},{2},{3},{4})"
+    db= Database('dictionary.db')
+    user = db.post_query(query.format(username,email,password,name,surname), ())
+    if user is not None:
+        print(user)
+        return render_template("base.html")
+    else:
+        pass
+
 
 
 @flask_app.route('/', methods=['POST'])
