@@ -73,7 +73,7 @@
         <div class="rounded d-flex justify-content-center">
             <div class="col-md-5 col-sm-12 shadow-lg p-5 bg-light">
                 <div class="text-center">
-                    <h1><a class="link" href="/">Dictionary App</a></h1>
+                    <h1><a class="link text-primary" href="/">Dictionary App</a></h1>
                     <br>
                     <form method="POST">
                         <div class="input-group mb-3">
@@ -92,9 +92,20 @@
                     <br>
                     {% block content %}
                         <div class="row">
-                            <h2 class="display-6 ini">Word of the Day: {{ word }}</h2>
-                            <h4>{{ pronunciation }}</h4>
+                            <h2 class><strong>Word of the Day</strong></h2>
+                            <h3 class="display-6 ini text-info">{{ word }}</h3>
                         </div>
+
+                        {% for part_of_speech, definition in word_results %}
+                            {% if part_of_speech != None %}
+                                <div class="card text-dark bg-light mb-3">
+                                <div class="card-header"><strong><em>{{ part_of_speech }}</em></strong></div>
+                            {% endif %}
+                        <div class="card-body">
+                            <h5 class="card-title">{{ definition }}</h5>
+                        </div>
+                        </div>
+                        {% endfor %}
                     {% endblock %}
                 </div>
             </div>

@@ -33,17 +33,14 @@ def register():
 
 @flask_app.route('/')
 def index():
-    # Code for word of the day
-    random_word = RandomWords()
-    random_word = random_word.get_random_word()
-    return word_definition(random_word, "base.html")
+    return word_of_the_day()
 
 
 @flask_app.route('/', methods=['POST'])
 def word_search_post():
     user_text = request.form['user_text']
     if user_text != "":
-        return word_definition(user_text, "word.html")
+        return word_definition(user_text)
     else:
         return render_template("base.html")
 
@@ -51,7 +48,23 @@ def word_search_post():
 app.mount("/v1", WSGIMiddleware(flask_app))
 
 
-def word_definition(word, template_name):
+def word_of_the_day():
+    r = RandomWords()
+    r = json.loads(r.word_of_the_day())
+
+    word = r["word"]
+    part_of_speech = []
+    definitions = []
+
+    for definition in r["definations"]:
+        definitions.append(definition["text"])
+        part_of_speech.append(definition["partOfSpeech"])
+
+    word_results = zip(part_of_speech, definitions)
+    return render_template("base.html", word=word, word_results=word_results)
+
+
+def word_definition(word):
     url = "https://api.dictionaryapi.dev/api/v2/entries/en/"
 
     # Parse and clean the user's word so that it is appropriate for the API call
@@ -114,7 +127,7 @@ def word_definition(word, template_name):
         # Render word_not_found.html if API doesn't return any definitions
         return render_template("word_not_found.html"), 404
 
-    return render_template(template_name=template_name, word=word, pronunciation=pronunciation, audio=audio_link,
+    return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
                            word_results=word_results,
                            audio_button=audio_button, synonyms=synonyms, antonyms=antonyms)
 
