@@ -7,7 +7,8 @@
 - <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
 - <strike>Generate dictionary data (APIs)</strike>
 - Menu (User Settings, Favorites, Word history, logout)
-- Dashboard Screen (Word of the day, <strike>search bar</strike>, most searched words, games)
+- Dashboard Screen (<strike>Word of the day</strike>, <strike>search bar</strike>, most searched words, games)
+- User/Account Screen
 
 
 # Prokopis
@@ -18,7 +19,7 @@
 - <strike>Login Screen</strike>
 - <strike>Registration Screen</strike>
 - <strike>Search Results Screen  (meaning, example sentences, synonyms, antonyms, translation)</strike>
-- Dashboard Screen (Word of the day, <strike>search bar</strike>, most searched words, games)
+- Dashboard Screen (<strike>Word of the day</strike>, <strike>search bar</strike>, most searched words, games)
 - Menu (User Settings, Favorites, Word history, logout)
 - User/Account Screen
 
