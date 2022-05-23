@@ -20,19 +20,19 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <script>
         function ToggleInputs() {
-           var name = document.getElementById("name");
-           var surname = document.getElementById("surname");
-           var email = document.getElementById("email");
-           var password = document.getElementById("password");
-           var username = document.getElementById("username");
+            let name = document.getElementById("name");
+            let surname = document.getElementById("surname");
+            let email = document.getElementById("email");
+            let password = document.getElementById("password");
+            let username = document.getElementById("username");
 
-           var elements = [name, surname, email,password, username]
-           elements.forEach(element => {
-               element.disabled = !element.disabled
-           });
-           document.getElementById("cancelBtn").style.visibility = elements[0].disabled ? "collapse": "visible";
-           document.getElementById("editBtn").style.visibility = elements[0].disabled ? "visible": "collapse";
-           document.getElementById("submitBtn").style.visibility = elements[0].disabled ? "collapse": "visible";
+            let elements = [name, surname, email, password, username]
+            elements.forEach(element => {
+                element.disabled = !element.disabled
+            });
+            document.getElementById("cancelBtn").style.visibility = elements[0].disabled ? "collapse" : "visible";
+            document.getElementById("editBtn").style.visibility = elements[0].disabled ? "visible" : "collapse";
+            document.getElementById("submitBtn").style.visibility = elements[0].disabled ? "collapse" : "visible";
 
         }
     </script>
@@ -82,47 +82,51 @@
                     {% block content %}
                         <div class="p-4">
                             <form action="{{ url_for('account') }}" method="post">
-                            <div class="input-group mb-3">
-                                <label>
-                                    <input id="name"  type="text" name="name" class="form-control" placeholder="{{user['Firstname']}}" disabled>
-                                </label>
-                            </div>
-                            <div class="input-group mb-3">
-                                <label>
-                                    <input id="surname" type="text" name="surname" class="form-control"
-                                           placeholder="{{user['Lastname']}}" disabled>
-                                </label>
-                            </div>
-                            <div class="input-group mb-3">
-                                <label>
-                                    <input id="email" type="email" name="email" class="form-control"
-                                           placeholder="{{user['Email']}}" disabled>
-                                </label>
-                            </div>
-                            <div class="input-group mb-3">
-                                <label>
-                                    <input id="username" type="text" name="username" class="form-control"
-                                           placeholder="{{user['Username']}}" disabled>
-                                </label>
-                            </div>
-                            <div class="input-group mb-3">
-                                <label>
-                                    <input id="password" type="password" name="password" class="form-control"
-                                           placeholder="{{user['Password']}}" disabled>
-                                </label>
-                            </div>
-                         
-                                <button id="editBtn" type="button" onclick="ToggleInputs()"  class="btn btn-primary text-center mt-2">
+                                <div class="input-group mb-3">
+                                    <label>
+                                        <input id="name" type="text" name="name" class="form-control"
+                                               placeholder="{{ user['Firstname'] }}" disabled>
+                                    </label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label>
+                                        <input id="surname" type="text" name="surname" class="form-control"
+                                               placeholder="{{ user['Lastname'] }}" disabled>
+                                    </label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label>
+                                        <input id="email" type="email" name="email" class="form-control"
+                                               placeholder="{{ user['Email'] }}" disabled>
+                                    </label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label>
+                                        <input id="username" type="text" name="username" class="form-control"
+                                               placeholder="{{ user['Username'] }}" disabled>
+                                    </label>
+                                </div>
+                                <div class="input-group mb-3">
+                                    <label>
+                                        <input id="password" type="password" name="password" class="form-control"
+                                               placeholder="{{ user['Password'] }}" disabled>
+                                    </label>
+                                </div>
+
+                                <button id="editBtn" type="button" onclick="ToggleInputs()"
+                                        class="btn btn-primary text-center mt-2">
                                     Edit
                                 </button>
-                                <button style="visibility: collapse;" id="cancelBtn" type="button" onclick="ToggleInputs()"  class="btn btn-primary text-center mt-2">
+                                <button style="visibility: collapse;" id="cancelBtn" type="button"
+                                        onclick="ToggleInputs()" class="btn btn-primary text-center mt-2">
                                     Cancel
                                 </button>
-                                <button style="visibility: collapse;" id="submitBtn" type="submit"  class="btn btn-primary text-center mt-2" >
+                                <button style="visibility: collapse;" id="submitBtn" type="submit"
+                                        class="btn btn-primary text-center mt-2">
                                     Submit Changes
                                 </button>
-                           </form>
-                          
+                            </form>
+
                         </div>
                         <div class="p-4">
                             <h3 class="text-info">Most Searched Word</h3>

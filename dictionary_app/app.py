@@ -1,17 +1,16 @@
-import sqlite3
-from flask import Flask, render_template, request, session
-from random_word import RandomWords
-import requests
-import jsonpath_ng
 import json
 import urllib.parse
-from fastapi import FastAPI
-from fastapi.middleware.wsgi import WSGIMiddleware
+
+import jsonpath_ng
+import requests
+from flask import Flask, render_template, request, session
+from random_word import RandomWords
+
 from util.sqlite import Database
-from util.db import engine, Base
 
 flask_app = Flask(__name__)
 flask_app.secret_key = b'ACSC_430'
+
 
 # flask routes
 
@@ -27,18 +26,17 @@ def index():
         part_of_speech.append(definition["partOfSpeech"])
 
     word_results = zip(part_of_speech, definitions)
-   
-   
+
     if 'user_id' in session:
         db = Database()
         query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
         users = db.selection_query(query)
-        if len(users) >0:
+        if len(users) > 0:
             user = users[0]
             return render_template("account_nav.html", word=word, word_results=word_results, user=user)
-   
+
     return render_template("account_nav.html", word=word, word_results=word_results)
-   
+
 
 @flask_app.route('/', methods=['POST'])
 def word_search():
@@ -47,6 +45,7 @@ def word_search():
         return word_definition(user_text)
     else:
         return index()
+
 
 @flask_app.route('/logout')
 def logout():
@@ -66,10 +65,10 @@ def login_post():  # put flask_application's code here
 
     query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
         username, password)
-   
+
     db = Database()
     users = db.selection_query(query)
- 
+
     if len(users) > 0:
         session['user_id'] = users[0]['Id']
         return index()
@@ -100,17 +99,18 @@ def register_post():
 
 @flask_app.route('/account', methods=['GET'])
 def account():
-   # fetch account
-   if session['user_id'] is not None:
+    # fetch account
+    if session['user_id'] is not None:
         db = Database()
-        id = session['user_id']
-        query = "SELECT * FROM User WHERE Id={0}".format(id)
+        session_id = session['user_id']
+        query = "SELECT * FROM User WHERE Id={0}".format(session_id)
         users = db.selection_query(query)
         user = users[0]
         if len(users) > 0:
             return render_template("account.html", user=user)
-       
-   return index()
+
+    return index()
+
 
 @flask_app.route('/account', methods=['POST'])
 def account_edit():
@@ -121,9 +121,9 @@ def account_edit():
     name = request.form['name']
     surname = request.form['surname']
     user = (username, email, password, name, surname)
-    id= session['user_id']
-    query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', Lastname='{4}' WHERE Id={5}".format(
-        username, email, password, name, surname,id)
+    session_id = session['user_id']
+    query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', " \
+            "Lastname='{4}' WHERE Id={5}".format(username, email, password, name, surname, session_id)
     db = Database()
     db.post_query(query)
     return render_template('account.html', user=user)
@@ -132,8 +132,8 @@ def account_edit():
 @flask_app.route('/favorite', methods=['POST'])
 def favorite():
     word = request.form['word']
-    id = session['user_id']
-    query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, id)
+    session_id = session['user_id']
+    query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
     db = Database()
     db.post_query(query)
     return account()
@@ -143,8 +143,7 @@ def word_of_the_day():
     r = RandomWords()
     r = json.loads(r.word_of_the_day())
     return r
-   
-   
+
 
 def word_definition(word):
     url = "https://api.dictionaryapi.dev/api/v2/entries/en/"
