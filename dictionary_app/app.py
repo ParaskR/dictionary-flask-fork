@@ -1,3 +1,4 @@
+import sqlite3
 from flask import Flask, render_template, request, session
 from random_word import RandomWords
 import requests
@@ -6,16 +7,11 @@ import json
 import urllib.parse
 from fastapi import FastAPI
 from fastapi.middleware.wsgi import WSGIMiddleware
-from backend.util.sqlite import Database
-from backend.util.db import engine, Base
+from util.sqlite import Database
+from util.db import engine, Base
 
 flask_app = Flask(__name__)
 flask_app.secret_key = b'ACSC_430'
-
-app = FastAPI()
-
-Base.metadata.create_all(bind=engine)
-
 
 # flask routes
 
@@ -23,6 +19,13 @@ Base.metadata.create_all(bind=engine)
 def index():
     return word_of_the_day()
 
+@flask_app.route('/', methods=['POST'])
+def word_search():
+    user_text = request.form['user_text']
+    if user_text != "":
+        return word_definition(user_text)
+    else:
+        return index()
 
 @flask_app.route('/logout')
 def logout():
@@ -42,12 +45,12 @@ def login_post():  # put flask_application's code here
 
     query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
         username, password)
-
-    db = Database('backend/util/dictionary.db')
+   
+    db = Database()
     users = db.selection_query(query)
-
+ 
     if len(users) > 0:
-        session['user_id'] = users[0][0]
+        session['user_id'] = users[0]['Id']
         return render_template("base.html")
     else:
         return "USER NOT FOUND"
@@ -68,8 +71,8 @@ def register_post():
 
     query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
     query = query.format(username, email, password, name, surname)
-    db = Database('backend/util/dictionary.db')
-    user = db.post_query(query, ())
+    db = Database()
+    user = db.post_query(query)
     if user:
         return index()
 
@@ -78,7 +81,7 @@ def register_post():
 def account():
    # fetch account
     if session['user_id'] is not None:
-        db = Database('backend/util/dictionary.db')
+        db = Database()
         id = session['user_id']
         query = "SELECT * FROM User WHERE Id={0}".format(id)
         users = db.selection_query(query)
@@ -101,20 +104,19 @@ def account_edit():
     query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', Lastname='{4}' WHERE Id={5}".format(
         username, email, password, name, surname,id)
     print(query)
-    db = Database('backend/util/dictionary.db')
-    db.post_query(query, ())
+    db = Database()
+    db.post_query(query)
     return render_template('account.html', user=user)
 
-@flask_app.route('/', methods=['POST'])
-def word_search():
-    user_text = request.form['user_text']
-    if user_text != "":
-        return word_definition(user_text)
-    else:
-        return index()
 
-
-app.mount("/v1", WSGIMiddleware(flask_app))
+@flask_app.route('/favorite', methods=['POST'])
+def add_to_favorites():
+    word = request.form['word']
+    id = session['user_id']
+    query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, id)
+    db = Database()
+    db.post_query(query)
+    return account()
 
 
 def word_of_the_day():

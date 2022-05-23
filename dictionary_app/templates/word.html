@@ -6,7 +6,12 @@
         <h2 class="display-6 ini">{{ word }}</h2>
         <h4>{{ pronunciation }}</h4>
         <div class="text-center">
-            <button class="btn btn-primary btn-sm">Save</button>
+            <form action="{{ url_for('favorite') }}">
+                <input style="visibility:collapse" type="text" name="word" class="form-control"
+                placeholder="{{word}}" required>
+                <button class="btn btn-primary btn-sm">Favorite</button>
+            </form>
+           
         </div>
     </div>
 
