@@ -27,19 +27,16 @@ def index():
         part_of_speech.append(definition["partOfSpeech"])
 
     word_results = zip(part_of_speech, definitions)
-    
+  
+   
     if session['user_id'] is not None:
         db = Database()
-        id = session['user_id']
-        query = "SELECT * FROM User WHERE Id={0}".format(id)
+        query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
         users = db.selection_query(query)
         user = users[0]
-        if len(users) > 0:
-            return render_template("account_nav.html", word=word, word_results=word_results, user=user)
-       
-      
-    return render_template("account_nav.html", word=word, word_results=word_results, user=None)
-        
+        return render_template("account_nav.html", word=word, word_results=word_results, user=user)
+    else:
+        return render_template("account_nav.html", word=word, word_results=word_results)
    
 
 @flask_app.route('/', methods=['POST'])
@@ -52,7 +49,7 @@ def word_search():
 
 @flask_app.route('/logout')
 def logout():
-    print(session['user_id'])
+  
     session.pop('user_id', None)
     return render_template("login.html")
 
