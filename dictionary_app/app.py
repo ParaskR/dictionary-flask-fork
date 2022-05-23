@@ -17,7 +17,30 @@ flask_app.secret_key = b'ACSC_430'
 
 @flask_app.route('/')
 def index():
-    return word_of_the_day()
+    r = word_of_the_day()
+    word = r["word"]
+    part_of_speech = []
+    definitions = []
+
+    for definition in r["definations"]:
+        definitions.append(definition["text"])
+        part_of_speech.append(definition["partOfSpeech"])
+
+    word_results = zip(part_of_speech, definitions)
+    
+    if session['user_id'] is not None:
+        db = Database()
+        id = session['user_id']
+        query = "SELECT * FROM User WHERE Id={0}".format(id)
+        users = db.selection_query(query)
+        user = users[0]
+        if len(users) > 0:
+            return render_template("account_nav.html", word=word, word_results=word_results, user=user)
+       
+      
+    return render_template("account_nav.html", word=word, word_results=word_results, user=None)
+        
+   
 
 @flask_app.route('/', methods=['POST'])
 def word_search():
@@ -29,8 +52,9 @@ def word_search():
 
 @flask_app.route('/logout')
 def logout():
+    print(session['user_id'])
     session.pop('user_id', None)
-    return index()
+    return render_template("login.html")
 
 
 @flask_app.route('/login')
@@ -50,8 +74,9 @@ def login_post():  # put flask_application's code here
     users = db.selection_query(query)
  
     if len(users) > 0:
+        print(users[0]['Id'])
         session['user_id'] = users[0]['Id']
-        return render_template("base.html")
+        return index()
     else:
         return "USER NOT FOUND"
 
@@ -80,7 +105,7 @@ def register_post():
 @flask_app.route('/account', methods=['GET'])
 def account():
    # fetch account
-    if session['user_id'] is not None:
+   if session['user_id'] is not None:
         db = Database()
         id = session['user_id']
         query = "SELECT * FROM User WHERE Id={0}".format(id)
@@ -88,8 +113,8 @@ def account():
         user = users[0]
         if len(users) > 0:
             return render_template("account.html", user=user)
-   
-    return index()
+       
+   return index()
 
 @flask_app.route('/account', methods=['POST'])
 def account_edit():
@@ -110,10 +135,11 @@ def account_edit():
 
 
 @flask_app.route('/favorite', methods=['POST'])
-def add_to_favorites():
+def favorite():
     word = request.form['word']
     id = session['user_id']
     query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, id)
+    print(query)
     db = Database()
     db.post_query(query)
     return account()
@@ -122,18 +148,9 @@ def add_to_favorites():
 def word_of_the_day():
     r = RandomWords()
     r = json.loads(r.word_of_the_day())
-
-    word = r["word"]
-    part_of_speech = []
-    definitions = []
-
-    for definition in r["definations"]:
-        definitions.append(definition["text"])
-        part_of_speech.append(definition["partOfSpeech"])
-
-    word_results = zip(part_of_speech, definitions)
-    return render_template("base.html", word=word, word_results=word_results)
-
+    return r
+   
+   
 
 def word_definition(word):
     url = "https://api.dictionaryapi.dev/api/v2/entries/en/"
