@@ -61,36 +61,36 @@
                     <br>
 
                     <br>
+                    <!-- User(ID,Username, Email, Password, Firstname, Lastname)-->
                     {% block content %}
                         <div class="p-4">
                             <div class="input-group mb-3">
                                 <label>
-                                    <input type="text" name="name" class="form-control"
-                                           placeholder="Name" disabled>
+                                    <input  type="text" name="name" class="form-control" placeholder="{{user[4]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input type="text" name="surname" class="form-control"
-                                           placeholder="Surname" disabled>
+                                           placeholder="{{user[5]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input type="email" name="email" class="form-control"
-                                           placeholder="Email" disabled>
+                                           placeholder="{{user[2]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input type="text" name="username" class="form-control"
-                                           placeholder="Username" disabled>
+                                           placeholder="{{user[1]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input type="password" name="password" class="form-control"
-                                           placeholder="Password" disabled>
+                                           placeholder="{{user[3]}}" disabled>
                                 </label>
                             </div>
                             <button type="submit" class="btn btn-primary text-center mt-2">

@@ -76,7 +76,17 @@ def register_post():
 
 @flask_app.route('/account')
 def account():
-    return render_template("account.html")
+   #fetch account
+    if session['user_id'] is not None:
+        db = Database('backend/util/dictionary.db')
+        id = session['user_id']
+        query = "SELECT * FROM User WHERE Id={0}".format(id)
+        users = db.selection_query(query)
+        user = users[0]
+        if len(users) > 0:
+            return render_template("account.html", user=user)
+   
+    return index()
 
 
 @flask_app.route('/', methods=['POST'])
