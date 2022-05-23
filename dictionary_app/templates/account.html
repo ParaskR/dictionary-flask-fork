@@ -84,31 +84,31 @@
                             <form action="{{ url_for('account') }}" method="post">
                             <div class="input-group mb-3">
                                 <label>
-                                    <input id="name"  type="text" name="name" class="form-control" placeholder="{{user[4]}}" disabled>
+                                    <input id="name"  type="text" name="name" class="form-control" placeholder="{{user['Firstname']}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input id="surname" type="text" name="surname" class="form-control"
-                                           placeholder="{{user[5]}}" disabled>
+                                           placeholder="{{user['Lastname']}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input id="email" type="email" name="email" class="form-control"
-                                           placeholder="{{user[2]}}" disabled>
+                                           placeholder="{{user['Email']}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input id="username" type="text" name="username" class="form-control"
-                                           placeholder="{{user[1]}}" disabled>
+                                           placeholder="{{user['Username']}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
                                     <input id="password" type="password" name="password" class="form-control"
-                                           placeholder="{{user[3]}}" disabled>
+                                           placeholder="{{user['Password']}}" disabled>
                                 </label>
                             </div>
                          

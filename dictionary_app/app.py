@@ -27,16 +27,17 @@ def index():
         part_of_speech.append(definition["partOfSpeech"])
 
     word_results = zip(part_of_speech, definitions)
-  
    
-    if session['user_id'] is not None:
+   
+    if 'user_id' in session:
         db = Database()
         query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
         users = db.selection_query(query)
-        user = users[0]
-        return render_template("account_nav.html", word=word, word_results=word_results, user=user)
-    else:
-        return render_template("account_nav.html", word=word, word_results=word_results)
+        if len(users) >0:
+            user = users[0]
+            return render_template("account_nav.html", word=word, word_results=word_results, user=user)
+   
+    return render_template("account_nav.html", word=word, word_results=word_results)
    
 
 @flask_app.route('/', methods=['POST'])
@@ -49,7 +50,6 @@ def word_search():
 
 @flask_app.route('/logout')
 def logout():
-  
     session.pop('user_id', None)
     return render_template("login.html")
 
@@ -71,7 +71,6 @@ def login_post():  # put flask_application's code here
     users = db.selection_query(query)
  
     if len(users) > 0:
-        print(users[0]['Id'])
         session['user_id'] = users[0]['Id']
         return index()
     else:
@@ -125,7 +124,6 @@ def account_edit():
     id= session['user_id']
     query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', Lastname='{4}' WHERE Id={5}".format(
         username, email, password, name, surname,id)
-    print(query)
     db = Database()
     db.post_query(query)
     return render_template('account.html', user=user)
@@ -136,7 +134,6 @@ def favorite():
     word = request.form['word']
     id = session['user_id']
     query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, id)
-    print(query)
     db = Database()
     db.post_query(query)
     return account()
