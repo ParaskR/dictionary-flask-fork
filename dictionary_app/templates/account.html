@@ -18,7 +18,24 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script>
+        function ToggleInputs() {
+           var name = document.getElementById("name");
+           var surname = document.getElementById("surname");
+           var email = document.getElementById("email");
+           var password = document.getElementById("password");
+           var username = document.getElementById("username");
 
+           var elements = [name, surname, email,password, username]
+           elements.forEach(element => {
+               element.disabled = !element.disabled
+           });
+           document.getElementById("cancelBtn").style.visibility = elements[0].disabled ? "collapse": "visible";
+           document.getElementById("editBtn").style.visibility = elements[0].disabled ? "visible": "collapse";
+           document.getElementById("submitBtn").style.visibility = elements[0].disabled ? "collapse": "visible";
+
+        }
+    </script>
     <title>{% block title %}Account{% endblock %} | Dictionary</title>
 
 </head>
@@ -64,38 +81,48 @@
                     <!-- User(ID,Username, Email, Password, Firstname, Lastname)-->
                     {% block content %}
                         <div class="p-4">
+                            <form action="{{ url_for('account') }}" method="post">
                             <div class="input-group mb-3">
                                 <label>
-                                    <input  type="text" name="name" class="form-control" placeholder="{{user[4]}}" disabled>
+                                    <input id="name"  type="text" name="name" class="form-control" placeholder="{{user[4]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
-                                    <input type="text" name="surname" class="form-control"
+                                    <input id="surname" type="text" name="surname" class="form-control"
                                            placeholder="{{user[5]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
-                                    <input type="email" name="email" class="form-control"
+                                    <input id="email" type="email" name="email" class="form-control"
                                            placeholder="{{user[2]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
-                                    <input type="text" name="username" class="form-control"
+                                    <input id="username" type="text" name="username" class="form-control"
                                            placeholder="{{user[1]}}" disabled>
                                 </label>
                             </div>
                             <div class="input-group mb-3">
                                 <label>
-                                    <input type="password" name="password" class="form-control"
+                                    <input id="password" type="password" name="password" class="form-control"
                                            placeholder="{{user[3]}}" disabled>
                                 </label>
                             </div>
-                            <button type="submit" class="btn btn-primary text-center mt-2">
-                                Edit
-                            </button>
+                         
+                                <button id="editBtn" type="button" onclick="ToggleInputs()"  class="btn btn-primary text-center mt-2">
+                                    Edit
+                                </button>
+                                <button style="visibility: collapse;" id="cancelBtn" type="button" onclick="ToggleInputs()"  class="btn btn-primary text-center mt-2">
+                                    Cancel
+                                </button>
+                                <button style="visibility: collapse;" id="submitBtn" type="submit"  class="btn btn-primary text-center mt-2" >
+                                    Submit Changes
+                                </button>
+                           </form>
+                          
                         </div>
                         <div class="p-4">
                             <h3 class="text-info">Most Searched Word</h3>

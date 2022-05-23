@@ -74,9 +74,9 @@ def register_post():
         return index()
 
 
-@flask_app.route('/account')
+@flask_app.route('/account', methods=['GET'])
 def account():
-   #fetch account
+   # fetch account
     if session['user_id'] is not None:
         db = Database('backend/util/dictionary.db')
         id = session['user_id']
@@ -88,6 +88,22 @@ def account():
    
     return index()
 
+@flask_app.route('/account', methods=['POST'])
+def account_edit():
+    # edit account
+    username = request.form['username']
+    email = request.form['email']
+    password = request.form['password']
+    name = request.form['name']
+    surname = request.form['surname']
+    user = (username, email, password, name, surname)
+    id= session['user_id']
+    query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', Lastname='{4}' WHERE Id={5}".format(
+        username, email, password, name, surname,id)
+    print(query)
+    db = Database('backend/util/dictionary.db')
+    db.post_query(query, ())
+    return render_template('account.html', user=user)
 
 @flask_app.route('/', methods=['POST'])
 def word_search():
