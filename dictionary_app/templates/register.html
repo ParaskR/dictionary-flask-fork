@@ -20,38 +20,30 @@
                 <form action="{{ url_for('register_post') }}" method="POST">
                     <div class="p-4">
                         <div class="input-group mb-3">
-                            <label>
-                                <input type="text" name="name" class="form-control"
-                                       placeholder="Name" required>
-                            </label>
+                            <input type="text" name="name" class="form-control"
+                                   placeholder="Name" required>
                         </div>
                         <div class="input-group mb-3">
-                            <label>
-                                <input type="text" name="surname" class="form-control"
-                                       placeholder="Surname" required>
-                            </label>
+                            <input type="text" name="surname" class="form-control"
+                                   placeholder="Surname" required>
                         </div>
                         <div class="input-group mb-3">
-                            <label>
-                                <input type="email" name="email" class="form-control"
-                                       placeholder="Email" required>
-                            </label>
+                            <input type="email" name="email" class="form-control"
+                                   placeholder="Email" required>
                         </div>
                         <div class="input-group mb-3">
-                            <label>
-                                <input type="text" name="username" class="form-control"
-                                       placeholder="Username" required>
-                            </label>
+                            <input type="text" name="username" class="form-control"
+                                   placeholder="Username" required>
                         </div>
                         <div class="input-group mb-3">
-                            <label>
-                                <input type="password" name="password" class="form-control"
-                                       placeholder="Password" required>
-                            </label>
+                            <input type="password" name="password" class="form-control"
+                                   placeholder="Password" required>
                         </div>
-                        <button type="submit" class="btn btn-primary text-center mt-2">
-                            Register
-                        </button>
+                        <div class="text-center">
+                            <button type="submit" class="btn btn-primary text-center mt-2">
+                                Register
+                            </button>
+                        </div>
                         <p class="text-center mt-5">
                             Already have an account? <a href="{{ url_for('login') }}">Login</a>
                         </p>

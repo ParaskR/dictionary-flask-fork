@@ -7,11 +7,11 @@
         <h4>{{ pronunciation }}</h4>
         <div class="text-center">
             <form action="{{ url_for('favorite') }}" method="POST">
-                <input style="visibility:visible" value="{{word}}" type="text" name="word" class="form-control"
-                placeholder="{{word}}" required>
-                <button type="submit" class="btn btn-primary btn-sm">Favorite</button>
+                <input hidden value="{{ word }}" type="text" name="word" class="form-control"
+                       placeholder="{{ word }}" required>
+                <button type="submit" class="btn btn-primary btn-sm">Save Word</button>
             </form>
-           
+
         </div>
     </div>
 
@@ -39,7 +39,7 @@
                     </button>
                 </h2>
                 <div id="collapseOne" class="accordion-collapse collapse"
-                     aria-labelledby="headingOne" data-bs-parent="#accordionExample">
+                     aria-labelledby="headingOne">
                     <div class="accordion-body">
                         {% for synonym in synonyms %}
                             <span class="badge bg-light text-dark">{{ synonym }}</span>
@@ -63,7 +63,7 @@
                     </button>
                 </h2>
                 <div id="collapseTwo" class="accordion-collapse collapse"
-                     aria-labelledby="headingTwo" data-bs-parent="#accordionExample">
+                     aria-labelledby="headingTwo">
                     <div class="accordion-body">
                         {% for antonym in antonyms %}
                             <span class="badge bg-light text-dark">{{ antonym }}</span>

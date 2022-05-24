@@ -83,42 +83,33 @@
                         <div class="p-4">
                             <form action="{{ url_for('account') }}" method="post">
                                 <div class="input-group mb-3">
-                                    <label>
-                                        <input id="name" type="text" name="name" class="form-control"
-                                               placeholder="{{ user['Firstname'] }}" disabled>
-                                    </label>
+                                    <input id="name" type="text" name="name" class="form-control"
+                                           placeholder="{{ user['Firstname'] }}" disabled>
                                 </div>
                                 <div class="input-group mb-3">
-                                    <label>
-                                        <input id="surname" type="text" name="surname" class="form-control"
-                                               placeholder="{{ user['Lastname'] }}" disabled>
-                                    </label>
+                                    <input id="surname" type="text" name="surname" class="form-control"
+                                           placeholder="{{ user['Lastname'] }}" disabled>
                                 </div>
                                 <div class="input-group mb-3">
-                                    <label>
-                                        <input id="email" type="email" name="email" class="form-control"
-                                               placeholder="{{ user['Email'] }}" disabled>
-                                    </label>
+                                    <input id="email" type="email" name="email" class="form-control"
+                                           placeholder="{{ user['Email'] }}" disabled>
                                 </div>
                                 <div class="input-group mb-3">
-                                    <label>
-                                        <input id="username" type="text" name="username" class="form-control"
-                                               placeholder="{{ user['Username'] }}" disabled>
-                                    </label>
+                                    <input id="username" type="text" name="username" class="form-control"
+                                           placeholder="{{ user['Username'] }}" disabled>
                                 </div>
                                 <div class="input-group mb-3">
-                                    <label>
-                                        <input id="password" type="password" name="password" class="form-control"
-                                               placeholder="{{ user['Password'] }}" disabled>
-                                    </label>
+                                    <input id="password" type="password" name="password" class="form-control"
+                                           placeholder="{{ user['Password'] }}" disabled>
                                 </div>
-
-                                <button id="editBtn" type="button" onclick="ToggleInputs()"
-                                        class="btn btn-primary text-center mt-2">
-                                    Edit
-                                </button>
+                                <div class="text-center">
+                                    <button id="editBtn" type="button" onclick="ToggleInputs()"
+                                            class="btn btn-primary text-center mt-2">
+                                        Edit
+                                    </button>
+                                </div>
                                 <button style="visibility: collapse;" id="cancelBtn" type="button"
-                                        onclick="ToggleInputs()" class="btn btn-primary text-center mt-2">
+                                        onclick="ToggleInputs()" class="btn btn-danger text-center mt-2">
                                     Cancel
                                 </button>
                                 <button style="visibility: collapse;" id="submitBtn" type="submit"
