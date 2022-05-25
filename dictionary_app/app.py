@@ -3,6 +3,7 @@ import urllib.parse
 
 import jsonpath_ng
 import requests
+from datetime import timedelta
 from flask import Flask, render_template, request, session, redirect, url_for
 from random_word import RandomWords
 
@@ -11,6 +12,13 @@ from util.sqlite import Database
 random_words = RandomWords()
 flask_app = Flask(__name__)
 flask_app.secret_key = b'ACSC_430'
+
+
+# Make login sessions expire after 12 hours
+@flask_app.before_request
+def before_request():
+    session.permanent = True
+    flask_app.permanent_session_lifetime = timedelta(hours=12)
 
 
 # Flask routes
