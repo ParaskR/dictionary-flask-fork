@@ -8,6 +8,7 @@ from random_word import RandomWords
 
 from util.sqlite import Database
 
+random_words = RandomWords()
 flask_app = Flask(__name__)
 flask_app.secret_key = b'ACSC_430'
 
@@ -16,12 +17,12 @@ flask_app.secret_key = b'ACSC_430'
 
 @flask_app.route('/')
 def index():
-    r = word_of_the_day()
-    word = r["word"]
+    word_of_the_day_response = word_of_the_day()
+    word = word_of_the_day_response["word"]
     part_of_speech = []
     definitions = []
 
-    for definition in r["definations"]:
+    for definition in word_of_the_day_response["definations"]:
         definitions.append(definition["text"])
         part_of_speech.append(definition["partOfSpeech"])
 
@@ -140,9 +141,9 @@ def favorite():
 
 
 def word_of_the_day():
-    r = RandomWords()
-    r = json.loads(r.word_of_the_day())
-    return r
+    global random_words
+    word_of_the_day_response = json.loads(random_words.word_of_the_day())
+    return word_of_the_day_response
 
 
 def word_definition(word):
