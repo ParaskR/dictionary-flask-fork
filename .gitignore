@@ -15,3 +15,11 @@ dictionary_app/*.egg-info/
 dictionary_app/.idea/sqldialects.xml
 dictionary_app/.idea/dataSources.xml
 dictionary_app/.idea/jsLibraryMappings.xml
+.idea/dataSources.xml
+.idea/inspectionProfiles/profiles_settings.xml
+.idea/dictionary-flask-fork.iml
+.idea/inspectionProfiles/Project_Default.xml
+.idea/misc.xml
+.idea/modules.xml
+.idea/sqldialects.xml
+.idea/vcs.xml
