@@ -4,7 +4,7 @@ import urllib.parse
 import jsonpath_ng
 import requests
 from datetime import timedelta
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from random_word import RandomWords
 
 from util.sqlite import Database
@@ -19,6 +19,13 @@ flask_app.secret_key = b'ACSC_430'
 def before_request():
     session.permanent = True
     flask_app.permanent_session_lifetime = timedelta(hours=12)
+
+
+# Ensure responses aren't cached for sessions and logged-in behaviour to work correctly
+@flask_app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 
 # Flask routes
@@ -64,53 +71,66 @@ def logout():
 
 @flask_app.route('/login')
 def login():
-    return render_template("login.html")
+    if 'user_id' not in session:
+        return render_template("login.html")
+    else:
+        return redirect(url_for("index"))
 
 
 @flask_app.route('/login', methods=['POST'])
 def login_post():
-    username = request.form['username']
-    password = request.form['password']
+    if 'user_id' not in session:
+        username = request.form['username']
+        password = request.form['password']
 
-    query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
-        username, password)
+        query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
+            username, password)
 
-    db = Database()
-    users = db.selection_query(query)
+        db = Database()
+        users = db.selection_query(query)
 
-    if len(users) > 0:
-        session['user_id'] = users[0]['Id']
-        return redirect(url_for("index"))
+        if len(users) > 0:
+            session['user_id'] = users[0]['Id']
+            return redirect(url_for("index"))
+        else:
+            flash('Wrong login credentials, please try again!')
+            return redirect(url_for("login"))
     else:
-        return "USER NOT FOUND"
+        return redirect(url_for("index"))
 
 
 @flask_app.route('/register')
 def register():
-    return render_template("register.html")
+    if 'user_id' not in session:
+        return render_template("register.html")
+    else:
+        return redirect(url_for("index"))
 
 
 @flask_app.route('/register', methods=['POST'])
 def register_post():
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-    name = request.form['name']
-    surname = request.form['surname']
+    if 'user_id' not in session:
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        name = request.form['name']
+        surname = request.form['surname']
 
-    query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
-    query = query.format(username, email, password, name, surname)
-    db = Database()
-    user = db.post_query(query)
+        query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
+        query = query.format(username, email, password, name, surname)
+        db = Database()
+        user = db.post_query(query)
 
-    if user:
+        if user:
+            return redirect(url_for("index"))
+    else:
         return redirect(url_for("index"))
 
 
 @flask_app.route('/account', methods=['GET'])
 def account():
     # Fetch account
-    if session['user_id'] is not None:
+    if 'user_id' in session:
         db = Database()
         session_id = session['user_id']
         query = "SELECT * FROM User WHERE Id={0}".format(session_id)
@@ -126,29 +146,35 @@ def account():
 @flask_app.route('/account', methods=['POST'])
 def account_edit():
     # Edit account
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-    name = request.form['name']
-    surname = request.form['surname']
-    user = (username, email, password, name, surname)
-    session_id = session['user_id']
-    query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', " \
-            "Lastname='{4}' WHERE Id={5}".format(username, email, password, name, surname, session_id)
-    db = Database()
-    db.post_query(query)
-    return render_template('account.html', user=user)
+    if 'user_id' in session:
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        name = request.form['name']
+        surname = request.form['surname']
+        user = (username, email, password, name, surname)
+        session_id = session['user_id']
+        query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', " \
+                "Lastname='{4}' WHERE Id={5}".format(username, email, password, name, surname, session_id)
+        db = Database()
+        db.post_query(query)
+        return render_template('account.html', user=user)
+    else:
+        return redirect(url_for("index"))
 
 
 @flask_app.route('/favorite', methods=['POST'])
 def favorite():
-    # Save word for user
-    word = request.form['word']
-    session_id = session['user_id']
-    query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
-    db = Database()
-    db.post_query(query)
-    return redirect(url_for("account"))
+    if 'user_id' in session:
+        # Save word for user
+        word = request.form['word']
+        session_id = session['user_id']
+        query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
+        db = Database()
+        db.post_query(query)
+        return redirect(url_for("account"))
+    else:
+        return redirect(url_for("index"))
 
 
 def word_of_the_day():
