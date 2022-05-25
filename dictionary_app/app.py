@@ -142,11 +142,37 @@ def favorite():
     return redirect(url_for("account"))
 
 
+
+
 def word_of_the_day():
     global random_words
     current_word_of_the_day = random_words.word_of_the_day()
     word_of_the_day_response = json.loads(current_word_of_the_day)
     return word_of_the_day_response
+
+
+def add_search_word(word, userId):
+    #check if word exists
+    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, userId)
+    db = Database()
+    words = db.selection_query(query)
+    if len(words) > 0:
+        # word already exists, increase frequency
+        frequency = int(words[0]["Frequency"])
+        frequency+=1
+        id= words[0]["Id"]
+        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, id)
+    else:
+        # word doesn't exist, add to searched words
+        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0), userId)
+
+    db.post_query(query)
+
+def get_searched_words(userId):
+    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(userId)
+    db = Database()
+    words = db.selection_query(query)
+    print(words)
 
 
 def word_definition(word):
