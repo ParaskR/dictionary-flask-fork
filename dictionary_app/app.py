@@ -13,7 +13,7 @@ flask_app = Flask(__name__)
 flask_app.secret_key = b'ACSC_430'
 
 
-# flask routes
+# Flask routes
 
 @flask_app.route('/')
 def index():
@@ -21,6 +21,7 @@ def index():
     word = word_of_the_day_response["word"]
     part_of_speech = []
     definitions = []
+    user = None
 
     for definition in word_of_the_day_response["definations"]:
         definitions.append(definition["text"])
@@ -34,9 +35,8 @@ def index():
         users = db.selection_query(query)
         if len(users) > 0:
             user = users[0]
-            return render_template("account_nav.html", word=word, word_results=word_results, user=user)
 
-    return render_template("account_nav.html", word=word, word_results=word_results)
+    return render_template("base.html", word=word, word_results=word_results, user=user)
 
 
 @flask_app.route('/', methods=['POST'])
@@ -60,7 +60,7 @@ def login():
 
 
 @flask_app.route('/login', methods=['POST'])
-def login_post():  # put flask_application's code here
+def login_post():
     username = request.form['username']
     password = request.form['password']
 
@@ -101,7 +101,7 @@ def register_post():
 
 @flask_app.route('/account', methods=['GET'])
 def account():
-    # fetch account
+    # Fetch account
     if session['user_id'] is not None:
         db = Database()
         session_id = session['user_id']
@@ -117,7 +117,7 @@ def account():
 
 @flask_app.route('/account', methods=['POST'])
 def account_edit():
-    # edit account
+    # Edit account
     username = request.form['username']
     email = request.form['email']
     password = request.form['password']
@@ -134,6 +134,7 @@ def account_edit():
 
 @flask_app.route('/favorite', methods=['POST'])
 def favorite():
+    # Save word for user
     word = request.form['word']
     session_id = session['user_id']
     query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
@@ -145,6 +146,8 @@ def favorite():
 
 
 def word_of_the_day():
+    # Get word of the day using the random words package and API.
+    # Sometimes API doesn't work and returns None instead of JSON string, causing Internal Server Error.
     global random_words
     current_word_of_the_day = random_words.word_of_the_day()
     word_of_the_day_response = json.loads(current_word_of_the_day)
