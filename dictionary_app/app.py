@@ -3,7 +3,7 @@ import urllib.parse
 
 import jsonpath_ng
 import requests
-from flask import Flask, render_template, request, session
+from flask import Flask, render_template, request, session, redirect
 from random_word import RandomWords
 
 from util.sqlite import Database
@@ -45,13 +45,13 @@ def word_search():
     if user_text != "":
         return word_definition(user_text)
     else:
-        return index()
+        return redirect("/")
 
 
 @flask_app.route('/logout')
 def logout():
     session.pop('user_id', None)
-    return render_template("login.html")
+    return redirect("/")
 
 
 @flask_app.route('/login')
@@ -72,7 +72,7 @@ def login_post():  # put flask_application's code here
 
     if len(users) > 0:
         session['user_id'] = users[0]['Id']
-        return index()
+        return redirect("/")
     else:
         return "USER NOT FOUND"
 
@@ -94,8 +94,9 @@ def register_post():
     query = query.format(username, email, password, name, surname)
     db = Database()
     user = db.post_query(query)
+
     if user:
-        return index()
+        return redirect("/")
 
 
 @flask_app.route('/account', methods=['GET'])
@@ -110,7 +111,8 @@ def account():
         if len(users) > 0:
             return render_template("account.html", user=user)
 
-    return index()
+    else:
+        return redirect("/")
 
 
 @flask_app.route('/account', methods=['POST'])
@@ -137,12 +139,13 @@ def favorite():
     query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
     db = Database()
     db.post_query(query)
-    return account()
+    return redirect("/account")
 
 
 def word_of_the_day():
     global random_words
-    word_of_the_day_response = json.loads(random_words.word_of_the_day())
+    current_word_of_the_day = random_words.word_of_the_day()
+    word_of_the_day_response = json.loads(current_word_of_the_day)
     return word_of_the_day_response
 
 
