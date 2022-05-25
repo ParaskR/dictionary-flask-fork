@@ -143,8 +143,6 @@ def favorite():
     return redirect(url_for("account"))
 
 
-
-
 def word_of_the_day():
     # Get word of the day using the random words package and API.
     # Sometimes API doesn't work and returns None instead of JSON string, causing Internal Server Error.
@@ -154,25 +152,27 @@ def word_of_the_day():
     return word_of_the_day_response
 
 
-def add_search_word(word, userId):
-    #check if word exists
-    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, userId)
+def add_search_word(word, user_id):
+    # check if word exists
+    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, user_id)
     db = Database()
     words = db.selection_query(query)
     if len(words) > 0:
         # word already exists, increase frequency
         frequency = int(words[0]["Frequency"])
-        frequency+=1
-        id= words[0]["Id"]
-        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, id)
+        frequency += 1
+        word_id = words[0]["Id"]
+        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
     else:
         # word doesn't exist, add to searched words
-        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0), userId)
+        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0),
+                                                                                                    user_id)
 
     db.post_query(query)
 
-def get_searched_words(userId):
-    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(userId)
+
+def get_searched_words(user_id):
+    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
     db = Database()
     words = db.selection_query(query)
     print(words)

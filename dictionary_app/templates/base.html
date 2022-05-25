@@ -42,50 +42,49 @@
 
 </head>
 <body>
-{% block nav %}
-    <!-- Navigation Bar -->
-    <nav class="navbar navbar-expand-lg navbar-light"
-         style="background-color: #e3f2fd;">
-        <div class="container px-4 px-lg-5">
-            <a class="navbar-brand" href="{{ url_for('index') }}">Dictionary App</a>
-            <button class="navbar-toggler" type="button"
-                    data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                    aria-controls="navbarSupportedContent" aria-expanded="false"
-                    aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
-                    <li class="nav-item"><a class="nav-link active"
-                                            aria-current="page" href="{{ url_for('index') }}">Home</a></li>
-                    {% if user %}
-                        <li class="nav-item"><a class="nav-link" aria-current="page"
-                                                href="{{ url_for('account') }}">Account</a></li> {% endif %}
-
-                </ul>
-
+<!-- Navigation Bar -->
+<nav class="navbar navbar-expand-lg navbar-light"
+     style="background-color: #e3f2fd;">
+    <div class="container px-4 px-lg-5">
+        <a class="navbar-brand" href="{{ url_for('index') }}">Dictionary App</a>
+        <button class="navbar-toggler" type="button"
+                data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
+                aria-controls="navbarSupportedContent" aria-expanded="false"
+                aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0 ms-lg-4">
+                <li class="nav-item"><a class="nav-link {% block home_active %}active{% endblock %}"
+                                        aria-current="page" href="{{ url_for('index') }}">Home</a></li>
                 {% if user %}
-                    <ul style="visibility: visible;" class="navbar-nav d-flex">
-                        <li class="nav-item"><a class="nav-link" aria-current="page"
-                                                href="#!">Hello, {{ user['Username'] }}</a></li>
-                        <li class="nav-item"><a class="nav-link active text-danger"
-                                                aria-current="page"
-                                                href="{{ url_for('logout') }}"><strong>Logout</strong></a>
-                        </li>
-                    </ul>
-                {% endif %}
+                    <li class="nav-item"><a class="nav-link {% block account_active %}{% endblock %}"
+                                            aria-current="page"
+                                            href="{{ url_for('account') }}">Account</a></li> {% endif %}
 
-                {% if not user %}
-                    <ul class="navbar-nav d-flex">
-                        <li class="nav-item"><a class="nav-link active text-danger"
-                                                aria-current="page" href="{{ url_for('login') }}"><strong>Login</strong></a>
-                        </li>
-                    </ul>
-                {% endif %}
-            </div>
+            </ul>
+
+            {% if user %}
+                <ul style="visibility: visible;" class="navbar-nav d-flex">
+                    <li class="nav-item"><a class="nav-link" aria-current="page"
+                                            href="#!">Hello, {{ user['Username'] }}</a></li>
+                    <li class="nav-item"><a class="nav-link active text-danger"
+                                            aria-current="page"
+                                            href="{{ url_for('logout') }}"><strong>Logout</strong></a>
+                    </li>
+                </ul>
+            {% endif %}
+
+            {% if not user %}
+                <ul class="navbar-nav d-flex">
+                    <li class="nav-item"><a class="nav-link active text-danger"
+                                            aria-current="page" href="{{ url_for('login') }}"><strong>Login</strong></a>
+                    </li>
+                </ul>
+            {% endif %}
         </div>
-    </nav>
-{% endblock %}
+    </div>
+</nav>
 <div class="container-fluid vh-100" style="margin-top: 100px">
     <div class="" style="margin-top: 200px">
         <div class="rounded d-flex justify-content-center">
