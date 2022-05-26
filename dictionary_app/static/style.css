@@ -20,3 +20,13 @@ h1 {
 body {
     font-family: "Inter", sans-serif;
 }
+
+label {
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+    text-align: left;
+    width: 100px;
+    line-height: 26px;
+    margin-bottom: 10px;
+}

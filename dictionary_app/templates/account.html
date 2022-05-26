@@ -29,26 +29,31 @@
     <br>
 
     <br>
-    <!-- User(ID,Username, Email, Password, Firstname, Lastname)-->
+    <!-- User(ID,Username, Email, Password, Firstname, Lastname) - View and Edit Account -->
     <div class="p-4">
         <form action="{{ url_for('account') }}" method="post">
             <div class="input-group mb-3">
+                <label for="name">First Name:</label>
                 <input id="name" type="text" name="name" class="form-control"
                        value="{{ user['Firstname'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
+                <label for="surname">Last Name:</label>
                 <input id="surname" type="text" name="surname" class="form-control"
                        value="{{ user['Lastname'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
+                <label for="email">Email:</label>
                 <input id="email" type="email" name="email" class="form-control"
                        value="{{ user['Email'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
+                <label for="username">Username:</label>
                 <input id="username" type="text" name="username" class="form-control"
                        value="{{ user['Username'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
+                <label for="password">Password:</label>
                 <input id="password" type="password" name="password" class="form-control"
                        value="{{ user['Password'] }}" required disabled>
             </div>
@@ -67,14 +72,40 @@
                 Submit Changes
             </button>
         </form>
+    </div>
 
-    </div>
-    <div class="p-4">
-        <h3 class="text-info">Search History</h3>
-        <p>{{ searched_words }}</p>
-    </div>
+    <!-- List User's saved words -->
     <div class="p-4">
         <h3 class="text-info">Saved Words</h3>
-        <p>{{ saved_words }}</p>
+        <ul class="list-group">
+            {% for word in saved_words %}
+                <li class="list-group-item">
+                    <form action="{{ url_for('display_saved_word') }}" method="POST">
+                        <input hidden value="{{ word["Content"] }}" type="text" name="word" class="form-control"
+                               placeholder="{{ word["Content"] }}" required>
+                        <button type="submit" class="btn"
+                                style="background-color: transparent">{{ word["Content"] }}</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
     </div>
+
+    <!-- List User's search history -->
+    <div class="p-4">
+        <h3 class="text-info">Search History</h3>
+        <ul class="list-group">
+            {% for word in searched_words %}
+                <li class="list-group-item">
+                    <form action="{{ url_for('display_saved_word') }}" method="POST">
+                        <input hidden value="{{ word["Content"] }}" type="text" name="word" class="form-control"
+                               placeholder="{{ word["Content"] }}" required>
+                        <button type="submit" class="btn"
+                                style="background-color: transparent">{{ word["Content"] }}</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
 {% endblock %}

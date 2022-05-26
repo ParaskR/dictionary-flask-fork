@@ -32,16 +32,24 @@ def after_request(response):
 @app.route('/')
 def index():
     word_of_the_day_response = word_of_the_day()
-    word = word_of_the_day_response["word"]
-    part_of_speech = []
-    definitions = []
     user = None
 
-    for definition in word_of_the_day_response["definations"]:
-        definitions.append(definition["text"])
-        part_of_speech.append(definition["partOfSpeech"])
+    if word_of_the_day_response:
+        word = word_of_the_day_response["word"]
+        part_of_speech = []
+        definitions = []
 
-    word_results = zip(part_of_speech, definitions)
+        for definition in word_of_the_day_response["definations"]:
+            definitions.append(definition["text"])
+            part_of_speech.append(definition["partOfSpeech"])
+
+        error_message = None
+        word_results = zip(part_of_speech, definitions)
+
+    else:
+        word = None
+        word_results = None
+        error_message = "We are sorry but there was an error getting the Word of the Day, please refresh."
 
     if 'user_id' in session:
         db = Database()
@@ -50,7 +58,7 @@ def index():
         if len(users) > 0:
             user = users[0]
 
-    return render_template("base.html", word=word, word_results=word_results, user=user)
+    return render_template("base.html", word=word, word_results=word_results, user=user, error_message=error_message)
 
 
 @app.route('/', methods=['POST'])
@@ -60,7 +68,6 @@ def word_search():
         return word_definition(user_text)
     else:
         return redirect(url_for("index"))
-    redirect(url_for("index"))
 
 
 @app.route('/logout')
@@ -177,10 +184,10 @@ def account_edit():
         return redirect(url_for("index"))
 
 
-@app.route('/favorite', methods=['POST'])
-def favorite():
+@app.route('/save', methods=['POST'])
+def save():
+    # Save word for user
     if 'user_id' in session:
-        # Save word for user
         word = request.form['word']
         session_id = session['user_id']
         query = "INSERT INTO SavedWord(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
@@ -191,12 +198,30 @@ def favorite():
         return redirect(url_for("index"))
 
 
+@app.route('/display_saved_word', methods=['POST'])
+def display_saved_word():
+    # Display the result page of a user's saved words when they click on them
+    if 'user_id' in session:
+        user_text = request.form['word']
+        if user_text != "":
+            return word_definition(user_text)
+        else:
+            return redirect(url_for("index"))
+    else:
+        return redirect(url_for("index"))
+
+
 def word_of_the_day():
     # Get word of the day using the random words package and API.
-    # Sometimes API doesn't work and returns None instead of JSON string, causing Internal Server Error.
+    # Sometimes the free API doesn't work and returns None instead of JSON string, causing Internal Server Error.
+    # Thus, do appropriate error checking to see if the response is a JSON string and not NoneType.
     global random_words
     current_word_of_the_day = random_words.word_of_the_day()
-    word_of_the_day_response = json.loads(current_word_of_the_day)
+    if current_word_of_the_day is not None:
+        word_of_the_day_response = json.loads(current_word_of_the_day)
+    else:
+        word_of_the_day_response = False
+
     return word_of_the_day_response
 
 
@@ -294,8 +319,9 @@ def add_search_word(word, user_id):
         # word already exists, increase frequency
         frequency = int(words[0]["Frequency"])
         frequency += 1
-        word_id = words[0]["Id"]
-        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
+        word_id = words[0]["UserId"]
+        query = "UPDATE SearchWord SET Frequency='{0}' WHERE UserId='{1}' AND Content='{2}'".format(frequency, word_id,
+                                                                                                    word)
     else:
         # word doesn't exist, add to searched words
         query = "INSERT INTO SearchWord(Content, Frequency, UserId) VALUES('{0}', '{1}', '{2}')".format(word, str(0),
@@ -306,18 +332,18 @@ def add_search_word(word, user_id):
 
 
 def get_searched_words(user_id):
+    # Fetch search history
     query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
     db = Database()
     words = db.selection_query(query)
-    print(words)
     return words
 
 
 def get_saved_words(user_id):
+    # Fetch saved words
     query = "SELECT * FROM SavedWord WHERE UserId='{0}'".format(user_id)
     db = Database()
     words = db.selection_query(query)
-    print(words)
     return words
 
 

@@ -5,14 +5,16 @@
     <div class="row">
         <h2 class="display-6 ini">{{ word }}</h2>
         <h4>{{ pronunciation }}</h4>
-        <div class="text-center">
-            <form action="{{ url_for('favorite') }}" method="POST">
-                <input hidden value="{{ word }}" type="text" name="word" class="form-control"
-                       placeholder="{{ word }}" required>
-                <button type="submit" class="btn btn-primary btn-sm">Save Word</button>
-            </form>
-
-        </div>
+        <!-- Only show save word button when user is logged in -->
+        {% if user %}
+            <div class="text-center">
+                <form action="{{ url_for('save') }}" method="POST">
+                    <input hidden value="{{ word }}" type="text" name="word" class="form-control"
+                           placeholder="{{ word }}" required>
+                    <button type="submit" class="btn btn-primary btn-sm">Save Word</button>
+                </form>
+            </div>
+        {% endif %}
     </div>
 
     <!-- Display the play audio button only when a word is present -->
