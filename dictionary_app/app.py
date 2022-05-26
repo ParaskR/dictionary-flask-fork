@@ -55,14 +55,12 @@ def index():
 
 @app.route('/', methods=['POST'])
 def word_search():
-    if 'user_id' in session:
-        user_text = request.form['user_text']
-        if user_text != "":
-            return word_definition(user_text)
-        else:
-            return redirect(url_for("index"))
+    user_text = request.form['user_text']
+    if user_text != "":
+        return word_definition(user_text)
     else:
-        redirect(url_for("index"))
+        return redirect(url_for("index"))
+    redirect(url_for("index"))
 
 
 @app.route('/logout')
@@ -261,7 +259,15 @@ def word_definition(word):
                         examples.append("!")
 
         word_results = zip(part_of_speech, definitions, examples)
-        add_search_word(word, session["user_id"])
+
+        users = []
+        user = None
+        if 'user_id' in session:
+            add_search_word(word, session['user_id'])
+            db = Database()
+            query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
+            users = db.selection_query(query)
+            user = users[0]
 
         # Show the play audio button only when a word is present
         audio_button = True
@@ -269,15 +275,14 @@ def word_definition(word):
         # Render word_not_found.html if API doesn't return any definitions
         return render_template("word_not_found.html"), 404
 
-    db = Database()
-    session_id = session['user_id']
-    query = "SELECT * FROM User WHERE Id={0}".format(session_id)
-    users = db.selection_query(query)
-    user = users[0]
     if len(users) > 0:
         return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
                                word_results=word_results,
                                audio_button=audio_button, synonyms=synonyms, antonyms=antonyms, user=user)
+    else:
+        return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
+                               word_results=word_results,
+                               audio_button=audio_button, synonyms=synonyms, antonyms=antonyms)
 
 
 def add_search_word(word, user_id):
