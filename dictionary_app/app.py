@@ -1,12 +1,11 @@
 import json
 import urllib.parse
-
 import jsonpath_ng
 import requests
 from datetime import timedelta
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from random_word import RandomWords
-
+import sqlite3
 from util.sqlite import Database
 
 random_words = RandomWords()
@@ -46,7 +45,7 @@ def index():
 
     if 'user_id' in session:
         db = Database()
-        query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
+        query = "SELECT * FROM User WHERE Id='{0}'".format(session['user_id'])
         users = db.selection_query(query)
         if len(users) > 0:
             user = users[0]
@@ -116,13 +115,23 @@ def register_post():
         name = request.form['name']
         surname = request.form['surname']
 
-        query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
+        query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}'," \
+                "'{4}') "
         query = query.format(username, email, password, name, surname)
-        db = Database()
-        user = db.post_query(query)
 
-        if user:
-            return redirect(url_for("index"))
+        db = sqlite3.connect('util/dictionary.db')
+        db.execute("PRAGMA foreign_keys = 1")
+        db.row_factory = sqlite3.Row
+
+        cur = db.cursor()
+        cur.execute(query)
+        last_id = cur.lastrowid
+        db.commit()
+        db.close()
+
+        session['user_id'] = last_id
+
+        return redirect(url_for("index"))
     else:
         return redirect(url_for("index"))
 
@@ -152,13 +161,12 @@ def account_edit():
         password = request.form['password']
         name = request.form['name']
         surname = request.form['surname']
-        user = (username, email, password, name, surname)
         session_id = session['user_id']
         query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', " \
                 "Lastname='{4}' WHERE Id={5}".format(username, email, password, name, surname, session_id)
         db = Database()
         db.post_query(query)
-        return render_template('account.html', user=user)
+        return redirect(url_for("account"))
     else:
         return redirect(url_for("index"))
 
@@ -184,32 +192,6 @@ def word_of_the_day():
     current_word_of_the_day = random_words.word_of_the_day()
     word_of_the_day_response = json.loads(current_word_of_the_day)
     return word_of_the_day_response
-
-
-def add_search_word(word, user_id):
-    # check if word exists
-    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, user_id)
-    db = Database()
-    words = db.selection_query(query)
-    if len(words) > 0:
-        # word already exists, increase frequency
-        frequency = int(words[0]["Frequency"])
-        frequency += 1
-        word_id = words[0]["Id"]
-        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
-    else:
-        # word doesn't exist, add to searched words
-        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0),
-                                                                                                    user_id)
-
-    db.post_query(query)
-
-
-def get_searched_words(user_id):
-    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
-    db = Database()
-    words = db.selection_query(query)
-    print(words)
 
 
 def word_definition(word):
@@ -283,5 +265,31 @@ def word_definition(word):
                            audio_button=audio_button, synonyms=synonyms, antonyms=antonyms)
 
 
+def add_search_word(word, user_id):
+    # check if word exists
+    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, user_id)
+    db = Database()
+    words = db.selection_query(query)
+    if len(words) > 0:
+        # word already exists, increase frequency
+        frequency = int(words[0]["Frequency"])
+        frequency += 1
+        word_id = words[0]["Id"]
+        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
+    else:
+        # word doesn't exist, add to searched words
+        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0),
+                                                                                                    user_id)
+
+    db.post_query(query)
+
+
+def get_searched_words(user_id):
+    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
+    db = Database()
+    words = db.selection_query(query)
+    print(words)
+
+
 if __name__ == '__main__':
-    flask_app.run(debug=True)
+    flask_app.run()
