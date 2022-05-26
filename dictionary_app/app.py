@@ -43,11 +43,13 @@ def index():
             definitions.append(definition["text"])
             part_of_speech.append(definition["partOfSpeech"])
 
+        error_message = None
         word_results = zip(part_of_speech, definitions)
 
     else:
         word = None
-        word_results = "We are sorry but there was an error getting the Word of the Day, please refresh."
+        word_results = None
+        error_message = "We are sorry but there was an error getting the Word of the Day, please refresh."
 
     if 'user_id' in session:
         db = Database()
@@ -56,7 +58,7 @@ def index():
         if len(users) > 0:
             user = users[0]
 
-    return render_template("base.html", word=word, word_results=word_results, user=user)
+    return render_template("base.html", word=word, word_results=word_results, user=user, error_message=error_message)
 
 
 @app.route('/', methods=['POST'])
@@ -182,8 +184,8 @@ def account_edit():
         return redirect(url_for("index"))
 
 
-@app.route('/favorite', methods=['POST'])
-def favorite():
+@app.route('/save', methods=['POST'])
+def save():
     if 'user_id' in session:
         # Save word for user
         word = request.form['word']
@@ -198,10 +200,15 @@ def favorite():
 
 def word_of_the_day():
     # Get word of the day using the random words package and API.
-    # Sometimes API doesn't work and returns None instead of JSON string, causing Internal Server Error.
+    # Sometimes the free API doesn't work and returns None instead of JSON string, causing Internal Server Error.
+    # Thus, do appropriate error checking to see if the response is a JSON string and not NoneType.
     global random_words
     current_word_of_the_day = random_words.word_of_the_day()
-    word_of_the_day_response = json.loads(current_word_of_the_day)
+    if current_word_of_the_day is not None:
+        word_of_the_day_response = json.loads(current_word_of_the_day)
+    else:
+        word_of_the_day_response = False
+
     return word_of_the_day_response
 
 
@@ -312,18 +319,18 @@ def add_search_word(word, user_id):
 
 
 def get_searched_words(user_id):
+    # Fetch search history
     query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
     db = Database()
     words = db.selection_query(query)
-    print(words)
     return words
 
 
 def get_saved_words(user_id):
+    # Fetch saved words
     query = "SELECT * FROM SavedWord WHERE UserId='{0}'".format(user_id)
     db = Database()
     words = db.selection_query(query)
-    print(words)
     return words
 
 

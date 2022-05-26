@@ -29,7 +29,7 @@
     <br>
 
     <br>
-    <!-- User(ID,Username, Email, Password, Firstname, Lastname)-->
+    <!-- User(ID,Username, Email, Password, Firstname, Lastname) - View and Edit Account -->
     <div class="p-4">
         <form action="{{ url_for('account') }}" method="post">
             <div class="input-group mb-3">
@@ -67,14 +67,29 @@
                 Submit Changes
             </button>
         </form>
-
     </div>
+
+    <!-- List User's search history -->
     <div class="p-4">
         <h3 class="text-info">Search History</h3>
-        <p>{{ searched_words }}</p>
+        <ul class="list-group">
+            {% for word in searched_words %}
+                <li class="list-group-item">
+                    {{ word["Content"] }}
+                </li>
+            {% endfor %}
+        </ul>
     </div>
+
+    <!-- List User's saved words -->
     <div class="p-4">
         <h3 class="text-info">Saved Words</h3>
-        <p>{{ saved_words }}</p>
+        <ul class="list-group">
+            {% for word in saved_words %}
+                <li class="list-group-item">
+                    {{ word["Content"] }}
+                </li>
+            {% endfor %}
+        </ul>
     </div>
 {% endblock %}
