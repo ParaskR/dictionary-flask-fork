@@ -9,19 +9,19 @@ import sqlite3
 from util.sqlite import Database
 
 random_words = RandomWords()
-flask_app = Flask(__name__)
-flask_app.secret_key = b'ACSC_430'
+app = Flask(__name__)
+app.secret_key = b'ACSC_430'
 
 
 # Make login sessions expire after 12 hours
-@flask_app.before_request
+@app.before_request
 def before_request():
     session.permanent = True
-    flask_app.permanent_session_lifetime = timedelta(hours=12)
+    app.permanent_session_lifetime = timedelta(hours=12)
 
 
 # Ensure responses aren't cached for sessions and logged-in behaviour to work correctly
-@flask_app.after_request
+@app.after_request
 def after_request(response):
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
@@ -29,7 +29,7 @@ def after_request(response):
 
 # Flask routes
 
-@flask_app.route('/')
+@app.route('/')
 def index():
     word_of_the_day_response = word_of_the_day()
     word = word_of_the_day_response["word"]
@@ -53,7 +53,7 @@ def index():
     return render_template("base.html", word=word, word_results=word_results, user=user)
 
 
-@flask_app.route('/', methods=['POST'])
+@app.route('/', methods=['POST'])
 def word_search():
     user_text = request.form['user_text']
     if user_text != "":
@@ -62,13 +62,13 @@ def word_search():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/logout')
+@app.route('/logout')
 def logout():
     session.pop('user_id', None)
     return redirect(url_for("index"))
 
 
-@flask_app.route('/login')
+@app.route('/login')
 def login():
     if 'user_id' not in session:
         return render_template("login.html")
@@ -76,7 +76,7 @@ def login():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/login', methods=['POST'])
+@app.route('/login', methods=['POST'])
 def login_post():
     if 'user_id' not in session:
         username = request.form['username']
@@ -98,7 +98,7 @@ def login_post():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/register')
+@app.route('/register')
 def register():
     if 'user_id' not in session:
         return render_template("register.html")
@@ -106,7 +106,7 @@ def register():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/register', methods=['POST'])
+@app.route('/register', methods=['POST'])
 def register_post():
     if 'user_id' not in session:
         username = request.form['username']
@@ -136,7 +136,7 @@ def register_post():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/account', methods=['GET'])
+@app.route('/account', methods=['GET'])
 def account():
     # Fetch account
     if 'user_id' in session:
@@ -152,7 +152,7 @@ def account():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/account', methods=['POST'])
+@app.route('/account', methods=['POST'])
 def account_edit():
     # Edit account
     if 'user_id' in session:
@@ -171,7 +171,7 @@ def account_edit():
         return redirect(url_for("index"))
 
 
-@flask_app.route('/favorite', methods=['POST'])
+@app.route('/favorite', methods=['POST'])
 def favorite():
     if 'user_id' in session:
         # Save word for user
@@ -292,4 +292,4 @@ def get_searched_words(user_id):
 
 
 if __name__ == '__main__':
-    flask_app.run()
+    app.run()

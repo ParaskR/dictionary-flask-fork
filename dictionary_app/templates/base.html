@@ -39,7 +39,6 @@
     {% endblock %}
 
     <title>{% block title %}Search{% endblock %} | Dictionary</title>
-
 </head>
 <body>
 <!-- Navigation Bar with python code so that it changes, depending on if there is a user logged in or not-->
@@ -90,6 +89,17 @@
         <div class="rounded d-flex justify-content-center">
             <div class="col-md-5 col-sm-12 shadow-lg p-5 bg-light">
                 <div class="text-center">
+                    {% with messages = get_flashed_messages() %}
+                        {% if messages %}
+                            <ul class="flashes list-group">
+                                {% for message in messages %}
+                                    <li class="list-group-item list-group-item-danger">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                            <br>
+                            <br>
+                        {% endif %}
+                    {% endwith %}
                     {% block main_search %}
                         <!-- Main Search Bar component, allowing the user to search for words and get suggestions -->
                         <h1><a class="link text-primary" href="{{ url_for('index') }}">Dictionary App</a></h1>
