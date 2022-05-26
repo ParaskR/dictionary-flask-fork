@@ -186,14 +186,27 @@ def account_edit():
 
 @app.route('/save', methods=['POST'])
 def save():
+    # Save word for user
     if 'user_id' in session:
-        # Save word for user
         word = request.form['word']
         session_id = session['user_id']
         query = "INSERT INTO SavedWord(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
         db = Database()
         db.post_query(query)
         return redirect(url_for("account"))
+    else:
+        return redirect(url_for("index"))
+
+
+@app.route('/display_saved_word', methods=['POST'])
+def display_saved_word():
+    # Display the result page of a user's saved words when they click on them
+    if 'user_id' in session:
+        user_text = request.form['word']
+        if user_text != "":
+            return word_definition(user_text)
+        else:
+            return redirect(url_for("index"))
     else:
         return redirect(url_for("index"))
 
