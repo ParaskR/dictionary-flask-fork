@@ -55,17 +55,23 @@ def index():
 
 @app.route('/', methods=['POST'])
 def word_search():
-    user_text = request.form['user_text']
-    if user_text != "":
-        return word_definition(user_text)
+    if 'user_id' in session:
+        user_text = request.form['user_text']
+        if user_text != "":
+            return word_definition(user_text)
+        else:
+            return redirect(url_for("index"))
     else:
-        return redirect(url_for("index"))
+        redirect(url_for("index"))
 
 
 @app.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    return redirect(url_for("index"))
+    if 'user_id' in session:
+        session.pop('user_id', None)
+        return redirect(url_for("index"))
+    else:
+        redirect(url_for("index"))
 
 
 @app.route('/login')
@@ -146,7 +152,9 @@ def account():
         users = db.selection_query(query)
         user = users[0]
         if len(users) > 0:
-            return render_template("account.html", user=user)
+            searched_words = get_searched_words(session_id)
+            saved_words = get_saved_words(session_id)
+            return render_template("account.html", user=user, searched_words=searched_words, saved_words=saved_words)
 
     else:
         return redirect(url_for("index"))
@@ -177,7 +185,7 @@ def favorite():
         # Save word for user
         word = request.form['word']
         session_id = session['user_id']
-        query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
+        query = "INSERT INTO SavedWord(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
         db = Database()
         db.post_query(query)
         return redirect(url_for("account"))
@@ -253,6 +261,7 @@ def word_definition(word):
                         examples.append("!")
 
         word_results = zip(part_of_speech, definitions, examples)
+        add_search_word(word, session["user_id"])
 
         # Show the play audio button only when a word is present
         audio_button = True
@@ -260,9 +269,15 @@ def word_definition(word):
         # Render word_not_found.html if API doesn't return any definitions
         return render_template("word_not_found.html"), 404
 
-    return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
-                           word_results=word_results,
-                           audio_button=audio_button, synonyms=synonyms, antonyms=antonyms)
+    db = Database()
+    session_id = session['user_id']
+    query = "SELECT * FROM User WHERE Id={0}".format(session_id)
+    users = db.selection_query(query)
+    user = users[0]
+    if len(users) > 0:
+        return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
+                               word_results=word_results,
+                               audio_button=audio_button, synonyms=synonyms, antonyms=antonyms, user=user)
 
 
 def add_search_word(word, user_id):
@@ -278,9 +293,10 @@ def add_search_word(word, user_id):
         query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
     else:
         # word doesn't exist, add to searched words
-        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0),
-                                                                                                    user_id)
+        query = "INSERT INTO SearchWord(Content, Frequency, UserId) VALUES('{0}', '{1}', '{2}')".format(word, str(0),
+                                                                                                        user_id)
 
+    db = Database()
     db.post_query(query)
 
 
@@ -289,6 +305,15 @@ def get_searched_words(user_id):
     db = Database()
     words = db.selection_query(query)
     print(words)
+    return words
+
+
+def get_saved_words(user_id):
+    query = "SELECT * FROM SavedWord WHERE UserId='{0}'".format(user_id)
+    db = Database()
+    words = db.selection_query(query)
+    print(words)
+    return words
 
 
 if __name__ == '__main__':
