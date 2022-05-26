@@ -34,23 +34,23 @@
         <form action="{{ url_for('account') }}" method="post">
             <div class="input-group mb-3">
                 <input id="name" type="text" name="name" class="form-control"
-                       placeholder="{{ user['Firstname'] }}" disabled>
+                       value="{{ user['Firstname'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
                 <input id="surname" type="text" name="surname" class="form-control"
-                       placeholder="{{ user['Lastname'] }}" disabled>
+                       value="{{ user['Lastname'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
                 <input id="email" type="email" name="email" class="form-control"
-                       placeholder="{{ user['Email'] }}" disabled>
+                       value="{{ user['Email'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
                 <input id="username" type="text" name="username" class="form-control"
-                       placeholder="{{ user['Username'] }}" disabled>
+                       value="{{ user['Username'] }}" required disabled>
             </div>
             <div class="input-group mb-3">
                 <input id="password" type="password" name="password" class="form-control"
-                       placeholder="{{ user['Password'] }}" disabled>
+                       value="{{ user['Password'] }}" required disabled>
             </div>
             <div class="text-center">
                 <button id="editBtn" type="button" onclick="ToggleInputs()"
@@ -59,7 +59,7 @@
                 </button>
             </div>
             <button style="visibility: collapse;" id="cancelBtn" type="button"
-                    onclick="ToggleInputs()" class="btn btn-danger text-center mt-2">
+                    onclick="window.location.reload();" class="btn btn-danger text-center mt-2">
                 Cancel
             </button>
             <button style="visibility: collapse;" id="submitBtn" type="submit"
@@ -70,9 +70,11 @@
 
     </div>
     <div class="p-4">
-        <h3 class="text-info">Most Searched Word</h3>
+        <h3 class="text-info">Search History</h3>
+        <p>{{ searched_words }}</p>
     </div>
     <div class="p-4">
         <h3 class="text-info">Saved Words</h3>
+        <p>{{ saved_words }}</p>
     </div>
 {% endblock %}

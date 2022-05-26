@@ -1,29 +1,35 @@
 import json
 import urllib.parse
-
 import jsonpath_ng
 import requests
 from datetime import timedelta
-from flask import Flask, render_template, request, session, redirect, url_for
+from flask import Flask, render_template, request, session, redirect, url_for, flash
 from random_word import RandomWords
-
+import sqlite3
 from util.sqlite import Database
 
 random_words = RandomWords()
-flask_app = Flask(__name__)
-flask_app.secret_key = b'ACSC_430'
+app = Flask(__name__)
+app.secret_key = b'ACSC_430'
 
 
 # Make login sessions expire after 12 hours
-@flask_app.before_request
+@app.before_request
 def before_request():
     session.permanent = True
-    flask_app.permanent_session_lifetime = timedelta(hours=12)
+    app.permanent_session_lifetime = timedelta(hours=12)
+
+
+# Ensure responses aren't cached for sessions and logged-in behaviour to work correctly
+@app.after_request
+def after_request(response):
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
 
 
 # Flask routes
 
-@flask_app.route('/')
+@app.route('/')
 def index():
     word_of_the_day_response = word_of_the_day()
     word = word_of_the_day_response["word"]
@@ -39,7 +45,7 @@ def index():
 
     if 'user_id' in session:
         db = Database()
-        query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
+        query = "SELECT * FROM User WHERE Id='{0}'".format(session['user_id'])
         users = db.selection_query(query)
         if len(users) > 0:
             user = users[0]
@@ -47,108 +53,144 @@ def index():
     return render_template("base.html", word=word, word_results=word_results, user=user)
 
 
-@flask_app.route('/', methods=['POST'])
+@app.route('/', methods=['POST'])
 def word_search():
-    user_text = request.form['user_text']
-    if user_text != "":
-        return word_definition(user_text)
+    if 'user_id' in session:
+        user_text = request.form['user_text']
+        if user_text != "":
+            return word_definition(user_text)
+        else:
+            return redirect(url_for("index"))
     else:
-        return redirect(url_for("index"))
+        redirect(url_for("index"))
 
 
-@flask_app.route('/logout')
+@app.route('/logout')
 def logout():
-    session.pop('user_id', None)
-    return redirect(url_for("index"))
-
-
-@flask_app.route('/login')
-def login():
-    return render_template("login.html")
-
-
-@flask_app.route('/login', methods=['POST'])
-def login_post():
-    username = request.form['username']
-    password = request.form['password']
-
-    query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
-        username, password)
-
-    db = Database()
-    users = db.selection_query(query)
-
-    if len(users) > 0:
-        session['user_id'] = users[0]['Id']
+    if 'user_id' in session:
+        session.pop('user_id', None)
         return redirect(url_for("index"))
     else:
-        return "USER NOT FOUND"
+        redirect(url_for("index"))
 
 
-@flask_app.route('/register')
-def register():
-    return render_template("register.html")
-
-
-@flask_app.route('/register', methods=['POST'])
-def register_post():
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-    name = request.form['name']
-    surname = request.form['surname']
-
-    query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}','{4}')"
-    query = query.format(username, email, password, name, surname)
-    db = Database()
-    user = db.post_query(query)
-
-    if user:
+@app.route('/login')
+def login():
+    if 'user_id' not in session:
+        return render_template("login.html")
+    else:
         return redirect(url_for("index"))
 
 
-@flask_app.route('/account', methods=['GET'])
+@app.route('/login', methods=['POST'])
+def login_post():
+    if 'user_id' not in session:
+        username = request.form['username']
+        password = request.form['password']
+
+        query = "SELECT * FROM User WHERE Username='{0}' AND Password='{1}' OR Email='{0}' AND Password='{1}'".format(
+            username, password)
+
+        db = Database()
+        users = db.selection_query(query)
+
+        if len(users) > 0:
+            session['user_id'] = users[0]['Id']
+            return redirect(url_for("index"))
+        else:
+            flash('Wrong login credentials, please try again!')
+            return redirect(url_for("login"))
+    else:
+        return redirect(url_for("index"))
+
+
+@app.route('/register')
+def register():
+    if 'user_id' not in session:
+        return render_template("register.html")
+    else:
+        return redirect(url_for("index"))
+
+
+@app.route('/register', methods=['POST'])
+def register_post():
+    if 'user_id' not in session:
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        name = request.form['name']
+        surname = request.form['surname']
+
+        query = "INSERT INTO User(Username, Email, Password, Firstname, Lastname) VALUES ('{0}','{1}','{2}','{3}'," \
+                "'{4}') "
+        query = query.format(username, email, password, name, surname)
+
+        db = sqlite3.connect('util/dictionary.db')
+        db.execute("PRAGMA foreign_keys = 1")
+        db.row_factory = sqlite3.Row
+
+        cur = db.cursor()
+        cur.execute(query)
+        last_id = cur.lastrowid
+        db.commit()
+        db.close()
+
+        session['user_id'] = last_id
+
+        return redirect(url_for("index"))
+    else:
+        return redirect(url_for("index"))
+
+
+@app.route('/account', methods=['GET'])
 def account():
     # Fetch account
-    if session['user_id'] is not None:
+    if 'user_id' in session:
         db = Database()
         session_id = session['user_id']
         query = "SELECT * FROM User WHERE Id={0}".format(session_id)
         users = db.selection_query(query)
         user = users[0]
         if len(users) > 0:
-            return render_template("account.html", user=user)
+            searched_words = get_searched_words(session_id)
+            saved_words = get_saved_words(session_id)
+            return render_template("account.html", user=user, searched_words=searched_words, saved_words=saved_words)
 
     else:
         return redirect(url_for("index"))
 
 
-@flask_app.route('/account', methods=['POST'])
+@app.route('/account', methods=['POST'])
 def account_edit():
     # Edit account
-    username = request.form['username']
-    email = request.form['email']
-    password = request.form['password']
-    name = request.form['name']
-    surname = request.form['surname']
-    user = (username, email, password, name, surname)
-    session_id = session['user_id']
-    query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', " \
-            "Lastname='{4}' WHERE Id={5}".format(username, email, password, name, surname, session_id)
-    db = Database()
-    db.post_query(query)
-    return render_template('account.html', user=user)
+    if 'user_id' in session:
+        username = request.form['username']
+        email = request.form['email']
+        password = request.form['password']
+        name = request.form['name']
+        surname = request.form['surname']
+        session_id = session['user_id']
+        query = "UPDATE User SET Username='{0}', Email='{1}', Password='{2}', Firstname='{3}', " \
+                "Lastname='{4}' WHERE Id={5}".format(username, email, password, name, surname, session_id)
+        db = Database()
+        db.post_query(query)
+        return redirect(url_for("account"))
+    else:
+        return redirect(url_for("index"))
 
 
-@flask_app.route('/favorite', methods=['POST'])
+@app.route('/favorite', methods=['POST'])
 def favorite():
-    # Save word for user
-    word = request.form['word']
-    session_id = session['user_id']
-    query = "INSERT INTO Word(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
-    db = Database()
-    db.post_query(query)
-    return redirect(url_for("account"))
+    if 'user_id' in session:
+        # Save word for user
+        word = request.form['word']
+        session_id = session['user_id']
+        query = "INSERT INTO SavedWord(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
+        db = Database()
+        db.post_query(query)
+        return redirect(url_for("account"))
+    else:
+        return redirect(url_for("index"))
 
 
 def word_of_the_day():
@@ -158,32 +200,6 @@ def word_of_the_day():
     current_word_of_the_day = random_words.word_of_the_day()
     word_of_the_day_response = json.loads(current_word_of_the_day)
     return word_of_the_day_response
-
-
-def add_search_word(word, user_id):
-    # check if word exists
-    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, user_id)
-    db = Database()
-    words = db.selection_query(query)
-    if len(words) > 0:
-        # word already exists, increase frequency
-        frequency = int(words[0]["Frequency"])
-        frequency += 1
-        word_id = words[0]["Id"]
-        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
-    else:
-        # word doesn't exist, add to searched words
-        query = "INSERT INTO SearchWord(Content,Frequency,UserId) VALUES('{0}','{1}', '{2}'".format(word, str(0),
-                                                                                                    user_id)
-
-    db.post_query(query)
-
-
-def get_searched_words(user_id):
-    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
-    db = Database()
-    words = db.selection_query(query)
-    print(words)
 
 
 def word_definition(word):
@@ -245,6 +261,7 @@ def word_definition(word):
                         examples.append("!")
 
         word_results = zip(part_of_speech, definitions, examples)
+        add_search_word(word, session["user_id"])
 
         # Show the play audio button only when a word is present
         audio_button = True
@@ -252,10 +269,52 @@ def word_definition(word):
         # Render word_not_found.html if API doesn't return any definitions
         return render_template("word_not_found.html"), 404
 
-    return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
-                           word_results=word_results,
-                           audio_button=audio_button, synonyms=synonyms, antonyms=antonyms)
+    db = Database()
+    session_id = session['user_id']
+    query = "SELECT * FROM User WHERE Id={0}".format(session_id)
+    users = db.selection_query(query)
+    user = users[0]
+    if len(users) > 0:
+        return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
+                               word_results=word_results,
+                               audio_button=audio_button, synonyms=synonyms, antonyms=antonyms, user=user)
+
+
+def add_search_word(word, user_id):
+    # check if word exists
+    query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, user_id)
+    db = Database()
+    words = db.selection_query(query)
+    if len(words) > 0:
+        # word already exists, increase frequency
+        frequency = int(words[0]["Frequency"])
+        frequency += 1
+        word_id = words[0]["Id"]
+        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
+    else:
+        # word doesn't exist, add to searched words
+        query = "INSERT INTO SearchWord(Content, Frequency, UserId) VALUES('{0}', '{1}', '{2}')".format(word, str(0),
+                                                                                                        user_id)
+
+    db = Database()
+    db.post_query(query)
+
+
+def get_searched_words(user_id):
+    query = "SELECT * FROM SearchWord WHERE UserId='{0}'".format(user_id)
+    db = Database()
+    words = db.selection_query(query)
+    print(words)
+    return words
+
+
+def get_saved_words(user_id):
+    query = "SELECT * FROM SavedWord WHERE UserId='{0}'".format(user_id)
+    db = Database()
+    words = db.selection_query(query)
+    print(words)
+    return words
 
 
 if __name__ == '__main__':
-    flask_app.run(debug=True)
+    app.run()
