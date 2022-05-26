@@ -32,16 +32,22 @@ def after_request(response):
 @app.route('/')
 def index():
     word_of_the_day_response = word_of_the_day()
-    word = word_of_the_day_response["word"]
-    part_of_speech = []
-    definitions = []
     user = None
 
-    for definition in word_of_the_day_response["definations"]:
-        definitions.append(definition["text"])
-        part_of_speech.append(definition["partOfSpeech"])
+    if word_of_the_day_response:
+        word = word_of_the_day_response["word"]
+        part_of_speech = []
+        definitions = []
 
-    word_results = zip(part_of_speech, definitions)
+        for definition in word_of_the_day_response["definations"]:
+            definitions.append(definition["text"])
+            part_of_speech.append(definition["partOfSpeech"])
+
+        word_results = zip(part_of_speech, definitions)
+
+    else:
+        word = None
+        word_results = "We are sorry but there was an error getting the Word of the Day, please refresh."
 
     if 'user_id' in session:
         db = Database()
@@ -60,7 +66,6 @@ def word_search():
         return word_definition(user_text)
     else:
         return redirect(url_for("index"))
-    redirect(url_for("index"))
 
 
 @app.route('/logout')
@@ -294,8 +299,9 @@ def add_search_word(word, user_id):
         # word already exists, increase frequency
         frequency = int(words[0]["Frequency"])
         frequency += 1
-        word_id = words[0]["Id"]
-        query = "UPDATE SearchWord SET Frequency='{0}' WHERE Id='{1}'".format(frequency, word_id)
+        word_id = words[0]["UserId"]
+        query = "UPDATE SearchWord SET Frequency='{0}' WHERE UserId='{1}' AND Content='{2}'".format(frequency, word_id,
+                                                                                                    word)
     else:
         # word doesn't exist, add to searched words
         query = "INSERT INTO SearchWord(Content, Frequency, UserId) VALUES('{0}', '{1}', '{2}')".format(word, str(0),
