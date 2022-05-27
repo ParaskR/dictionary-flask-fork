@@ -130,7 +130,22 @@
                         <div class="row">
                             <h2 class><strong>Word of the Day</strong></h2>
                             <h3 class="display-6 ini text-info">{{ word }}</h3>
-                        </div>
+
+                            <!-- Ability to save word of the day if user is logged in -->
+                            {% if user %}
+                                <br>
+                                <div class="text-center">
+                                    <form action="{{ url_for('save') }}" method="POST">
+                                        <input hidden value="{{ word }}" type="text" name="word" class="form-control"
+                                               placeholder="{{ word }}" required>
+                                        <button type="submit" class="btn btn-primary btn-sm">Save Word</button>
+                                    </form>
+                                </div>
+                                </div>
+                                <br>
+                                <br>
+                            {% endif %}
+
                         <!-- Since the free word of the day API sometimes doesn't work, do appropriate error handling -->
                         {% if word_results %}
                             {% for part_of_speech, definition in word_results %}
