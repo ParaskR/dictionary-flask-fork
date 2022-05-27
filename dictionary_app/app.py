@@ -31,6 +31,7 @@ def after_request(response):
 
 @app.route('/')
 def index():
+    # Call API to get word of the day and its definitions
     word_of_the_day_response = word_of_the_day()
     user = None
 
@@ -63,6 +64,7 @@ def index():
 
 @app.route('/', methods=['POST'])
 def word_search():
+    # Call Dictionary API to show word results if user searched for a word that wasn't empty
     user_text = request.form['user_text']
     if user_text != "":
         return word_definition(user_text)
@@ -89,6 +91,7 @@ def login():
 
 @app.route('/login', methods=['POST'])
 def login_post():
+    # Log in user if they are in the database, show error message using flash if they are not
     if 'user_id' not in session:
         username = request.form['username']
         password = request.form['password']
@@ -119,6 +122,7 @@ def register():
 
 @app.route('/register', methods=['POST'])
 def register_post():
+    # Add new user to database and log them in
     if 'user_id' not in session:
         username = request.form['username']
         email = request.form['email']
@@ -311,19 +315,19 @@ def word_definition(word):
 
 
 def add_search_word(word, user_id):
-    # check if word exists
+    # Check if word exists
     query = "SELECT * FROM SearchWord Where Content='{0}' AND UserId='{1}'".format(word, user_id)
     db = Database()
     words = db.selection_query(query)
     if len(words) > 0:
-        # word already exists, increase frequency
+        # Word already exists, increase frequency
         frequency = int(words[0]["Frequency"])
         frequency += 1
         word_id = words[0]["UserId"]
         query = "UPDATE SearchWord SET Frequency='{0}' WHERE UserId='{1}' AND Content='{2}'".format(frequency, word_id,
                                                                                                     word)
     else:
-        # word doesn't exist, add to searched words
+        # Word doesn't exist, add to searched words
         query = "INSERT INTO SearchWord(Content, Frequency, UserId) VALUES('{0}', '{1}', '{2}')".format(word, str(0),
                                                                                                         user_id)
 
