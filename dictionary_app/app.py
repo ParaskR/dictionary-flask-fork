@@ -5,13 +5,14 @@ import requests
 from datetime import timedelta
 from flask import Flask, render_template, request, session, redirect, url_for, flash
 from random_word import RandomWords
-import sqlite3
 from util.sqlite import Database
+import sqlite3
 
 random_words = RandomWords()
 app = Flask(__name__)
 app.secret_key = b'ACSC_430'
 app.debug = True
+
 
 # Make login sessions expire after 12 hours
 @app.before_request
@@ -135,17 +136,16 @@ def register_post():
         query = query.format(username, email, password, name, surname)
 
         db = Database()
-        last_id = None
         try:
             last_id = db.post_query(query)
-        except  Exception as e:
-            last_id = None
-            flash("error")
-            session['user_id'] = last_id 
+            session['user_id'] = last_id
+        except sqlite3.Error:
+            flash(
+                "There was an error during registration. This is most likely due to a user being registered with the "
+                "email or username you chose. Please try again.")
+            return redirect(url_for("register"))
 
-        return redirect(url_for("index"))
-    else:
-        return redirect(url_for("index"))
+    return redirect(url_for("index"))
 
 
 @app.route('/account', methods=['GET'])
@@ -206,10 +206,7 @@ def display_saved_word():
         user_text = request.form['word']
         if user_text != "":
             return word_definition(user_text)
-        else:
-            return redirect(url_for("index"))
-    else:
-        return redirect(url_for("index"))
+    return redirect(url_for("index"))
 
 
 def word_of_the_day():
