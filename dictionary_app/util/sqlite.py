@@ -13,14 +13,13 @@ class Database:
 
     def post_query(self, query):
         cur = self.conn.cursor()
-        try:
-            cur.execute(query)
-            self.conn.commit()
-            self.conn.close()
-            return True
-        except Exception as e:
-            print("ERROR: ", str(e))
-            return False
+        cur.execute(query)
+        last_id = cur.lastrowid
+        self.conn.commit()
+        self.conn.close()
+        return last_id
+         
+     
 
     def selection_query(self, query):
         cur = self.conn.cursor()

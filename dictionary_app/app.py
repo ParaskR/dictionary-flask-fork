@@ -11,7 +11,7 @@ from util.sqlite import Database
 random_words = RandomWords()
 app = Flask(__name__)
 app.secret_key = b'ACSC_430'
-
+app.debug = True
 
 # Make login sessions expire after 12 hours
 @app.before_request
@@ -134,17 +134,14 @@ def register_post():
                 "'{4}') "
         query = query.format(username, email, password, name, surname)
 
-        db = sqlite3.connect('util/dictionary.db')
-        db.execute("PRAGMA foreign_keys = 1")
-        db.row_factory = sqlite3.Row
-
-        cur = db.cursor()
-        cur.execute(query)
-        last_id = cur.lastrowid
-        db.commit()
-        db.close()
-
-        session['user_id'] = last_id
+        db = Database()
+        last_id = None
+        try:
+            last_id = db.post_query(query)
+        except  Exception as e:
+            last_id = None
+            flash("error")
+            session['user_id'] = last_id 
 
         return redirect(url_for("index"))
     else:
