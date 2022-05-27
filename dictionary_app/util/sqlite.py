@@ -18,8 +18,6 @@ class Database:
         self.conn.commit()
         self.conn.close()
         return last_id
-         
-     
 
     def selection_query(self, query):
         cur = self.conn.cursor()
@@ -32,3 +30,12 @@ class Database:
         except Exception as e:
             print("ERROR: ", str(e))
         return data
+
+    def delete_query(self, query):
+        cur = self.conn.cursor()
+        try:
+            cur.execute(query)
+            self.conn.commit()
+            self.conn.close()
+        except Exception as e:
+            print("ERROR: ", str(e))

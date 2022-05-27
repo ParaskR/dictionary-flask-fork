@@ -80,12 +80,23 @@
         <ul class="list-group">
             {% for word in saved_words %}
                 <li class="list-group-item">
-                    <form action="{{ url_for('display_saved_word') }}" method="POST">
-                        <input hidden value="{{ word["Content"] }}" type="text" name="word" class="form-control"
-                               placeholder="{{ word["Content"] }}" required>
-                        <button type="submit" class="btn"
-                                style="background-color: transparent">{{ word["Content"] }}</button>
-                    </form>
+                    <!-- Show saved words -->
+                    <div class="text-center" id="formWord">
+                        <form action="{{ url_for('display_saved_word') }}" method="POST">
+                            <input hidden value="{{ word["Content"] }}" type="text" name="word" class="form-control"
+                                   placeholder="{{ word["Content"] }}" required>
+                            <button type="submit" class="btn"
+                                    style="background-color: transparent">{{ word["Content"] }}</button>
+                        </form>
+                    </div>
+                    <!-- Button to remove a word from saved -->
+                    <div class="text-right" id="formWord">
+                        <form action="{{ url_for('delete_saved_word') }}" method="POST">
+                            <input hidden value="{{ word["Content"] }}" type="text" name="word" class="form-control"
+                                   placeholder="{{ word["Content"] }}" required>
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </div>
                 </li>
             {% endfor %}
         </ul>
