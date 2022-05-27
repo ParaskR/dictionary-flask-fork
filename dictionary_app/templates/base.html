@@ -67,7 +67,7 @@
             {% if user %}
                 <ul style="visibility: visible;" class="navbar-nav d-flex">
                     <li class="nav-item"><a class="nav-link" aria-current="page"
-                                            href="#!">Hello, {{ user['Username'] }}</a></li>
+                                            href="{{ url_for('account') }}">Hello, {{ user['Username'] }}</a></li>
                     <li class="nav-item"><a class="nav-link active text-danger"
                                             aria-current="page"
                                             href="{{ url_for('logout') }}"><strong>Logout</strong></a>
