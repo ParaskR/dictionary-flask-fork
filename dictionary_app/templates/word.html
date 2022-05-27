@@ -5,15 +5,26 @@
     <div class="row">
         <h2 class="display-6 ini">{{ word }}</h2>
         <h4>{{ pronunciation }}</h4>
+
         <!-- Only show save word button when user is logged in -->
         {% if user %}
             <div class="text-center">
                 <form action="{{ url_for('save') }}" method="POST">
                     <input hidden value="{{ word }}" type="text" name="word" class="form-control"
                            placeholder="{{ word }}" required>
-                    <button type="submit" class="btn btn-primary btn-sm">Save Word</button>
+                    <button id="saveBtn" type="submit" class="btn btn-primary btn-sm">Save Word</button>
                 </form>
             </div>
+        {% endif %}
+
+        <!-- Disable save button when the user already saved that word -->
+        {% if saved_word %}
+            <script>
+                $(function () {
+                    $('#saveBtn').html("Saved");
+                    $('#saveBtn').prop("disabled", true);
+                });
+            </script>
         {% endif %}
     </div>
 

@@ -36,6 +36,7 @@ def index():
     word_of_the_day_response = word_of_the_day()
     user = None
 
+    # Error handling for word of the day
     if word_of_the_day_response:
         word = word_of_the_day_response["word"]
         part_of_speech = []
@@ -58,7 +59,11 @@ def index():
         query = "SELECT * FROM User WHERE Id='{0}'".format(session['user_id'])
         users = db.selection_query(query)
         if len(users) > 0:
+            saved_word = check_saved_words(word)
             user = users[0]
+
+            return render_template("base.html", word=word, word_results=word_results, user=user,
+                                   error_message=error_message, saved_word=saved_word)
 
     return render_template("base.html", word=word, word_results=word_results, user=user, error_message=error_message)
 
@@ -296,12 +301,14 @@ def word_definition(word):
 
         users = []
         user = None
+        saved_word = False
         if 'user_id' in session:
             add_search_word(word, session['user_id'])
             db = Database()
             query = "SELECT * FROM User WHERE Id={0}".format(session['user_id'])
             users = db.selection_query(query)
             user = users[0]
+            saved_word = check_saved_words(word)
 
         # Show the play audio button only when a word is present
         audio_button = True
@@ -312,7 +319,8 @@ def word_definition(word):
     if len(users) > 0:
         return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
                                word_results=word_results,
-                               audio_button=audio_button, synonyms=synonyms, antonyms=antonyms, user=user)
+                               audio_button=audio_button, synonyms=synonyms, antonyms=antonyms, user=user,
+                               saved_word=saved_word)
     else:
         return render_template("word.html", word=word, pronunciation=pronunciation, audio=audio_link,
                                word_results=word_results,
@@ -354,6 +362,17 @@ def get_saved_words(user_id):
     db = Database()
     words = db.selection_query(query)
     return words
+
+
+def check_saved_words(word):
+    # Check if user has a word already saved
+    db = Database()
+    query = "SELECT * FROM SavedWord WHERE Content='{0}' AND UserId='{1}'".format(word, session['user_id'])
+    saved_words = db.selection_query(query)
+    if len(saved_words) > 0:
+        return True
+    else:
+        return False
 
 
 if __name__ == '__main__':
