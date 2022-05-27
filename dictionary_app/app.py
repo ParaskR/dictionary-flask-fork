@@ -11,7 +11,6 @@ import sqlite3
 random_words = RandomWords()
 app = Flask(__name__)
 app.secret_key = b'ACSC_430'
-app.debug = True
 
 
 # Make login sessions expire after 12 hours
@@ -227,8 +226,8 @@ def delete_saved_word():
 
 def word_of_the_day():
     # Get word of the day using the random words package and API.
-    # Sometimes the free API doesn't work and returns None instead of JSON string, causing Internal Server Error.
-    # Thus, do appropriate error checking to see if the response is a JSON string and not NoneType.
+    # Sometimes the free API doesn't work and returns None instead of JSON string, causing an Internal Server Error.
+    # Thus, do appropriate error checking to see if the response is a JSON string and not NoneType and avoid the error.
     global random_words
     current_word_of_the_day = random_words.word_of_the_day()
     if current_word_of_the_day is not None:
@@ -256,7 +255,7 @@ def word_definition(word):
     audio_link = None
 
     try:
-        # Parse the JSON response to find the word, pronunciation and audio
+        # Parse the API JSON response to find the word, pronunciation and audio
         query_word = jsonpath_ng.parse('[0].word[*]')
         for match in query_word.find(entries):
             word = (json.dumps(match.value)).strip('"')
@@ -275,7 +274,7 @@ def word_definition(word):
         synonyms = []
         antonyms = []
 
-        # Find the required information from the JSON response
+        # Find the required information from the API JSON response
         for entry in entries:
             for meaning in entry["meanings"]:
                 for synonym in meaning["synonyms"]:
