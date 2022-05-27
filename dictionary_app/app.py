@@ -190,8 +190,7 @@ def save():
     # Save word for user
     if 'user_id' in session:
         word = request.form['word']
-        session_id = session['user_id']
-        query = "INSERT INTO SavedWord(Content, UserId) VALUES('{0}','{1}')".format(word, session_id)
+        query = "INSERT INTO SavedWord(Content, UserId) VALUES('{0}','{1}')".format(word, session['user_id'])
         db = Database()
         db.post_query(query)
         return redirect(url_for("account"))
@@ -206,6 +205,18 @@ def display_saved_word():
         user_text = request.form['word']
         if user_text != "":
             return word_definition(user_text)
+    return redirect(url_for("index"))
+
+
+@app.route('/delete_saved_word', methods=['POST'])
+def delete_saved_word():
+    # Remove a word from a user's saved words
+    if 'user_id' in session:
+        word = request.form['word']
+        query = "DELETE FROM SavedWord WHERE Content = '{0}' AND UserId = '{1}'".format(word, session['user_id'])
+        db = Database()
+        db.delete_query(query)
+        return redirect(url_for("account"))
     return redirect(url_for("index"))
 
 
